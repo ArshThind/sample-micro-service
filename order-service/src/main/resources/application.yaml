@@ -1,17 +1,18 @@
-eureka:
-#  instance:
-#    prefer-ip-address: true
-#    appname: order-service
-#    instance-id: 1
-#    app-group-name: orders
-#    status-page-url: http://localhost:${server.port}/actuator/info
-  client:
-    serviceUrl:
-      defaultZone: http://localhost:8794/e-commerce/eureka
-
-
 spring:
   application:
     name: orders
+
 server:
   port: 7777
+  servlet:
+    context-path: /order-service
+
+datasource:
+  props:
+    hostname: localhost
+    port: 3306
+    database: 'e_comm'
+    username: 'demo_user'
+    password: 'demo_pass'
+    min: 1
+    max: 10

@@ -11,6 +11,22 @@ import lombok.Setter;
 public class Product {
 
     /**
+     * Util method to create a dummy product. Useful for mocking while developing.
+     *
+     * @return dummy product
+     */
+    public static final Product createDummyProduct() {
+        Product product = new Product();
+        product.productId = 999;
+        product.isAvailable = true;
+        product.category = "test";
+        product.availableQuantity = 999;
+        product.name = "test-product";
+        product.price = 999;
+        return product;
+    }
+
+    /**
      * product ID
      */
     private long productId;
@@ -38,21 +54,6 @@ public class Product {
     /**
      * product availability flag
      */
-    private boolean availabilityFlag;
+    private boolean isAvailable;
 
-    /**
-     * @return Product availability flag
-     */
-    public boolean isAvailable() {
-        return this.availabilityFlag;
-    }
-
-    /**
-     * Set the product availability flag
-     *
-     * @param availabilityFlag boolean value
-     */
-    public void setAvailabilityFlag(boolean availabilityFlag) {
-        this.availabilityFlag = availabilityFlag;
-    }
 }

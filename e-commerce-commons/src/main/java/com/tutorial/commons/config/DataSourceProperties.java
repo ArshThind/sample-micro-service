@@ -5,6 +5,7 @@ import lombok.Setter;
 import lombok.ToString;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
 
 import javax.sql.DataSource;
 
@@ -13,9 +14,9 @@ import javax.sql.DataSource;
  */
 @Getter
 @Setter
-@ConfigurationProperties(prefix = "dataSource.props", ignoreUnknownFields = false)
-@ConditionalOnMissingBean(DataSource.class)
+@ConfigurationProperties(prefix = "datasource.props", ignoreUnknownFields = false)
 @ToString
+@Configuration
 public class DataSourceProperties {
 
     public static final String TEST_QUERY = "SELECT 1";

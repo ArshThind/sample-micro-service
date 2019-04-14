@@ -129,7 +129,7 @@ public class UserDaoImpl implements UserDao {
      */
     @Override
     public int removeUser(User user) throws IOException {
-        String query = queryProvider.getTemplateQuery(QueryProvider.DELETE_SINGLE_USER);
+        String query = queryProvider.getTemplateQuery(QueryProvider.DISABLE_USER);
         log.info(query);
         Map<String, String> params = new HashMap<>();
         params.put(USER_NAME, user.getName());
@@ -145,7 +145,7 @@ public class UserDaoImpl implements UserDao {
      */
     @Override
     public int removeMultipleUsers(List<User> users) throws IOException {
-        String query = queryProvider.getTemplateQuery(QueryProvider.DELETE_MULTIPLE_USER);
+        String query = "";
         log.info(query);
         String usernames = StringUtils.join(users.stream().map(user -> user.getName()).collect(Collectors.toList()), "','");
         Map<String, String> params = new HashMap<>();

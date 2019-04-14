@@ -1,0 +1,48 @@
+package com.tutorial.commons.model;
+
+import lombok.Getter;
+import lombok.Setter;
+
+/**
+ * Simple POJO representing the delivery address for an order.
+ */
+@Getter
+@Setter
+public class Address {
+
+    private static final String COUNTRY = "India";
+
+    /**
+     * Util method to create a dummy address. Useful for mocking during testing.
+     *
+     * @return Dummy address
+     */
+    public static final Address createDummyAddress() {
+        Address address = new Address();
+        address.addressLine = "1, Test Lane";
+        address.city = "Test";
+        address.state = "Test";
+        address.pinCode = 123456;
+        return address;
+    }
+
+    /**
+     * Main address line for the address.
+     */
+    private String addressLine;
+
+    /**
+     * A valid city.
+     */
+    private String city;
+
+    /**
+     * State for the city.
+     */
+    private String state;
+
+    /**
+     * A valid 6 digit PIN code for the address.
+     */
+    private int pinCode;
+}
