@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: common-utils
+
+datasource:
+  props:
+    hostname: localhost
+    port: 3306
+    database: test
+    username: test
+    password: test
+    min: 1
+    max: 10
+
+tables:

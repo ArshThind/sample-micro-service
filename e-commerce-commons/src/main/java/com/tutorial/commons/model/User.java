@@ -1,4 +1,4 @@
-package com.tutorial.service.accounts.model;
+package com.tutorial.commons.model;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

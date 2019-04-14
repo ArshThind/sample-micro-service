@@ -1,7 +1,7 @@
 package com.tutorial.service.accounts.service.impl;
 
+import com.tutorial.commons.model.User;
 import com.tutorial.service.accounts.dao.UserDao;
-import com.tutorial.service.accounts.model.User;
 import com.tutorial.service.accounts.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

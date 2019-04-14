@@ -1,6 +1,6 @@
 package com.tutorial.service.accounts.dao;
 
-import com.tutorial.service.accounts.model.User;
+import com.tutorial.commons.model.User;
 
 import java.io.IOException;
 import java.util.List;

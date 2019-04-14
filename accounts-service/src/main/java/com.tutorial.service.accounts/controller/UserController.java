@@ -1,6 +1,6 @@
 package com.tutorial.service.accounts.controller;
 
-import com.tutorial.service.accounts.model.User;
+import com.tutorial.commons.model.User;
 import com.tutorial.service.accounts.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -89,6 +89,7 @@ public class UserController {
      * REST endpoint to delete multiple users from the underlying datastore.
      * NOTE: This will not actually delete the user from the underlying data store but will
      * actually mark the user accounts as inactive.
+     *
      * @param users
      * @return
      * @throws IOException

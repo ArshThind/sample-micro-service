@@ -1,8 +1,8 @@
 package com.tutorial.service.accounts.dao.impl;
 
+import com.tutorial.commons.model.User;
+import com.tutorial.commons.utils.QueryProvider;
 import com.tutorial.service.accounts.dao.UserDao;
-import com.tutorial.service.accounts.model.User;
-import com.tutorial.service.accounts.utilities.QueryProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,6 +1,5 @@
-package com.tutorial.service.accounts.utilities;
+package com.tutorial.commons.utils;
 
-import com.tutorial.service.accounts.configuration.TableNames;
 import org.apache.commons.io.IOUtils;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;

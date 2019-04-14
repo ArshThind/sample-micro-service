@@ -1,7 +1,6 @@
 package com.tutorial.service.accounts.service;
 
-import com.tutorial.service.accounts.dao.UserDao;
-import com.tutorial.service.accounts.model.User;
+import com.tutorial.commons.model.User;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
