@@ -1,0 +1,4 @@
+server:
+  port: 4881
+  servlet:
+    context-path: /products-service

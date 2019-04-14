@@ -1,0 +1,1 @@
+insert into users values (1001,'User1','user1@example.com',1234567890,'1-2-some building-some street-city-state-country','1-2-some building-some street-city-state-country',null);

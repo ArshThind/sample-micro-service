@@ -1,0 +1,30 @@
+server:
+  port: 4880
+  servlet:
+    context-path: /accounts-service
+
+db:
+  hostName: ubuntu
+  port: 3306
+  database: e_commerce
+  security:
+    userName: 'user'
+    password: 'pass'
+  pool:
+    min: 1
+    max: 10
+
+eureka:
+  instance:
+    status-page-url: http://localhost:${server.port}/actuator/info
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8794/e-commerce/eureka/
+
+spring:
+  application:
+    name: accounts
+
+
+
+
