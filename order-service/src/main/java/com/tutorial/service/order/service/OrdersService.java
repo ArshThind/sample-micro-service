@@ -1,6 +1,7 @@
 package com.tutorial.service.order.service;
 
 import com.tutorial.commons.model.Order;
+import com.tutorial.service.order.request.OrderRequest;
 
 import java.util.List;
 
@@ -39,7 +40,7 @@ public interface OrdersService {
      * @param orderId Id of the Order
      * @return Order corresponding to the id
      */
-    Order getOrdersById(String orderId);
+    Order getOrderById(String orderId);
 
     /**
      * Registers a new order with the service.
@@ -47,21 +48,23 @@ public interface OrdersService {
      * @param order Order to be registered
      * @return true/false depending on whether the order was registered successfully or not.
      */
-    boolean createOrder(Order order);
+    boolean createOrder(OrderRequest order);
 
     /**
      * Cancels an order registered with the service.
      *
-     * @param order Order to be cancelled.
+     * @param orderId Order to be cancelled.
      * @return true/false depending on whether the order was cancelled successfully or not.
      */
-    boolean cancelOrder(Order order);
+    boolean cancelOrder(String orderId);
 
     /**
      * Adds a new product to the order.
      *
      * @param productId The productId of the product to be added.
+     * @param quantity
+     * @param orderId The productId of the product to be added.
      * @return true/false depending on whether the product was added successfully or not.
      */
-    boolean addProduct(String productId);
+    boolean addProduct(String productId, Integer quantity, String orderId);
 }

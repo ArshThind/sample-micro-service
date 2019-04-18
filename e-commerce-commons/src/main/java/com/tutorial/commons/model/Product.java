@@ -17,7 +17,7 @@ public class Product {
      */
     public static final Product createDummyProduct() {
         Product product = new Product();
-        product.productId = 999;
+        product.productId = -1;
         product.isAvailable = true;
         product.category = "test";
         product.availableQuantity = 999;

@@ -4,9 +4,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Simple POJO representing a Order.
@@ -24,20 +23,19 @@ public class Order {
      */
     public static final Order createDummyOrder() {
         Order order = new Order();
-        order.id = "999999";
+        order.id = -1;
         order.user = User.createDummyUser();
         order.cost = 999d;
-        Set<Product> products = new HashSet<>(1);
-        products.add(Product.createDummyProduct());
-        order.products = products;
         order.address = Address.createDummyAddress();
+        Map<Product, Integer> productQty = new HashMap<>(1);
+        productQty.put(Product.createDummyProduct(), 1);
         return order;
     }
 
     /**
      * Id of the order
      */
-    private String id;
+    private Integer id;
 
     /**
      * The @{@link User} to which this order belongs to.
@@ -45,9 +43,9 @@ public class Order {
     private User user;
 
     /**
-     * Unique product(s) in this order.
+     * HashMap mapping products to their quantities.
      */
-    private Set<Product> products;
+    private Map<Product, Integer> products;
 
     /**
      * Delivery address of the order.

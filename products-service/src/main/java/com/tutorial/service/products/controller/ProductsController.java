@@ -1,6 +1,6 @@
 package com.tutorial.service.products.controller;
 
-import com.tutorial.service.products.model.Product;
+import com.tutorial.commons.model.Product;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
