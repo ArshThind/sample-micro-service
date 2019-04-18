@@ -17,4 +17,4 @@ tables:
   ordersTable: orders
   orderStatusTable: order_status
   deliveryAddressTable: del_address
-  usersTableō: users
+  usersTable: users

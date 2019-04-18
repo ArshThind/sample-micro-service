@@ -6,8 +6,6 @@ import com.tutorial.service.accounts.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -19,10 +17,9 @@ public class UserServiceImpl implements UserService {
     private UserDao userDao;
 
     /**
-     * {@inheritDoc}
-     * Delegates to {@link UserDao}
+     * Parameterized constructor for wiring in a @{@link UserDao}
      *
-     * @param userDao
+     * @param userDao The dao implementation to be wired in.
      */
     @Autowired
     public UserServiceImpl(UserDao userDao) {
@@ -34,10 +31,9 @@ public class UserServiceImpl implements UserService {
      * Delegates to {@link UserDao}
      *
      * @return
-     * @throws IOException
      */
     @Override
-    public List<User> getAllUsers() throws IOException {
+    public List<User> getAllUsers() {
         return userDao.getAllUsers();
     }
 
@@ -47,11 +43,10 @@ public class UserServiceImpl implements UserService {
      *
      * @param userName
      * @return
-     * @throws IOException
      */
     @Override
-    public User getUser(String userName) throws IOException {
-        return userDao.getUser(userName);
+    public User getUserByUsername(String userName) {
+        return userDao.getUserByUsername(userName);
     }
 
     /**
@@ -60,10 +55,9 @@ public class UserServiceImpl implements UserService {
      *
      * @param user
      * @return
-     * @throws IOException
      */
     @Override
-    public int createUser(User user) throws IOException {
+    public int createUser(User user) {
         return userDao.createNewUser(user);
     }
 
@@ -71,38 +65,36 @@ public class UserServiceImpl implements UserService {
      * {@inheritDoc}
      * Delegates to {@link UserDao}
      *
-     * @param users
+     * @param userId
      * @return
-     * @throws IOException
      */
     @Override
-    public String addMultipleUsers(List<User> users) throws IOException {
-        return Arrays.toString(userDao.createMultipleUsers(users));
+    public int unregisterUser(String userId) {
+        return userDao.disableUserAccount(userId);
     }
 
     /**
      * {@inheritDoc}
-     * Delegates to {@link UserDao}
+     * Delegates to a @{@link UserDao}
      *
-     * @param user
+     * @param userId id of the user
      * @return
-     * @throws IOException
      */
     @Override
-    public int removeUser(User user) throws IOException {
-        return userDao.removeUser(user);
+    public User getUserById(String userId) {
+        return userDao.getUserById(userId);
     }
 
     /**
      * {@inheritDoc}
-     * Delegates to {@link UserDao}
+     * Delegates to a @{@link UserDao}
      *
-     * @param users
+     * @param type id of the user
      * @return
-     * @throws IOException
      */
     @Override
-    public int removeMultipleUsers(List<User> users) throws IOException {
-        return userDao.removeMultipleUsers(users);
+    public List<User> getUserByType(User.UserType type) {
+        return userDao.getUsersByType(type);
     }
+
 }

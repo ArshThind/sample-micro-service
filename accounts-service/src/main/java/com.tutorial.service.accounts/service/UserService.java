@@ -3,7 +3,6 @@ package com.tutorial.service.accounts.service;
 import com.tutorial.commons.model.User;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -16,55 +15,47 @@ public interface UserService {
      * Retrieves all the users registered with the service.
      *
      * @return
-     * @throws IOException
      */
-    List<User> getAllUsers() throws IOException;
+    List<User> getAllUsers();
 
     /**
      * Retrieves the user registered with the service based on the userName
      *
      * @param userName
      * @return
-     * @throws IOException
      */
-    User getUser(String userName) throws IOException;
+    User getUserByUsername(String userName);
 
     /**
      * Registers a new user with the service.
      *
      * @param user
      * @return
-     * @throws IOException
      */
-    int createUser(User user) throws IOException;
-
-    /**
-     * Registers multiple users with the service.
-     *
-     * @param users
-     * @return
-     * @throws IOException
-     */
-    @Transactional
-    String addMultipleUsers(List<User> users) throws IOException;
+    int createUser(User user);
 
     /**
      * Un-registers a user from the service.
      *
-     * @param user
+     * @param userId Id of the user to be un-registered.
      * @return
-     * @throws IOException
      */
     @Transactional
-    int removeUser(User user) throws IOException;
+    int unregisterUser(String userId);
 
     /**
-     * Un-registers multiple users from the service.
+     * Retrieved a user registered with the service based on the uer id
      *
-     * @param users
-     * @return
-     * @throws IOException
+     * @param userId id of the user
+     * @return User with the given id, if present else a dummy user.
      */
-    @Transactional
-    int removeMultipleUsers(List<User> users) throws IOException;
+    User getUserById(String userId);
+
+    /**
+     * Retrieves users registered with the service of a given type
+     *
+     * @param type type of the user
+     * @return ArrayList of users matching the given type if present, else empty list.
+     */
+    List<User> getUserByType(User.UserType type);
 }

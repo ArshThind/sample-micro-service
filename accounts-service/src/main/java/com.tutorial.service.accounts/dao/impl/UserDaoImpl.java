@@ -1,10 +1,10 @@
 package com.tutorial.service.accounts.dao.impl;
 
+import com.tutorial.commons.annotations.DaoProfiler;
 import com.tutorial.commons.model.User;
 import com.tutorial.commons.utils.QueryProvider;
 import com.tutorial.service.accounts.dao.UserDao;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static com.tutorial.service.accounts.configuration.Constants.*;
 
@@ -44,10 +43,9 @@ public class UserDaoImpl implements UserDao {
      * @throws IOException
      */
     @Override
-    public List<User> getAllUsers() throws IOException {
-
+    @DaoProfiler(queryName = "get-all-users")
+    public List<User> getAllUsers() {
         String query = queryProvider.getTemplateQuery(QueryProvider.GET_ALL_USERS);
-        log.info(query);
         List<User> users = new ArrayList<>();
         namedParameterJdbcTemplate.query(query, rs -> {
             users.add(new User(rs));
@@ -60,18 +58,55 @@ public class UserDaoImpl implements UserDao {
      *
      * @param userName
      * @return
-     * @throws IOException
      */
     @Override
-    public User getUser(String userName) throws IOException {
+    @DaoProfiler(queryName = "get-user-by-username")
+    public User getUserByUsername(String userName) {
         String query = queryProvider.getTemplateQuery(QueryProvider.GET_USER_BY_USERNAME);
-        log.info(query);
         Map<String, String> params = new HashMap<>();
         params.put(USER_NAME, userName);
         List<User> users = namedParameterJdbcTemplate.query(query, params, (rs, rowNum) -> {
             return mapUser(rs);
         });
-        return users.isEmpty() ? new User() : users.get(0);
+        return users.isEmpty() ? User.createDummyUser() : users.get(0);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @param userId Id of the user
+     * @return
+     */
+    @DaoProfiler(queryName = "get-user-by-userId")
+    @Override
+    public User getUserById(String userId) {
+        String templateQuery = queryProvider.getTemplateQuery(QueryProvider.GET_USER_BY_ID);
+        Map<String, String> params = new HashMap<>(1);
+        params.put(USER_ID, userId);
+        User user = namedParameterJdbcTemplate.query(templateQuery, params, rs -> {
+            if (rs.next()) {
+                return mapUser(rs);
+            }
+            return User.createDummyUser();
+        });
+        return user;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @param userType
+     * @return
+     */
+    @Override
+    @DaoProfiler(queryName = "get-users-by-type")
+    public List<User> getUsersByType(User.UserType userType) {
+        String query = queryProvider.getTemplateQuery(QueryProvider.GET_USER_BY_TYPE);
+        Map<String, String> params = new HashMap<>(1);
+        params.put(USER_TYPE, userType.getValue());
+        return namedParameterJdbcTemplate.query(query, params, (rs, rowNum) -> {
+            return mapUser(rs);
+        });
     }
 
     /**
@@ -79,17 +114,16 @@ public class UserDaoImpl implements UserDao {
      *
      * @param user
      * @return
-     * @throws IOException
      */
+    @DaoProfiler(queryName = "add-new-user")
     @Override
-    public int createNewUser(User user) throws IOException {
+    public int createNewUser(User user) {
         String query = queryProvider.getTemplateQuery(QueryProvider.ADD_NEW_USER);
-        log.info(query);
         Map<String, Object> params = new HashMap<>();
-        params.put(ID, user.getId());
         params.put(USER_NAME, user.getName());
         params.put(EMAIL, user.getEmail());
         params.put(PHONE, String.valueOf(user.getPhone()));
+        params.put(USER_TYPE, user.getUserType());
         int records = namedParameterJdbcTemplate.update(query, params);
         return records;
     }
@@ -97,60 +131,15 @@ public class UserDaoImpl implements UserDao {
     /**
      * {@inheritDoc}
      *
-     * @param users
+     * @param userId
      * @return
-     * @throws IOException
      */
+    @DaoProfiler(queryName = "disable-user")
     @Override
-    public int[] createMultipleUsers(List<User> users) throws IOException {
-        String query = queryProvider.getTemplateQuery(QueryProvider.ADD_NEW_USER);
-        log.info(query);
-        Map<String, Object>[] params = new Map[users.size()];
-        int count = 0;
-        for (User user : users) {
-            Map<String, Object> map = new HashMap<>();
-            map.put(ID, user.getId());
-            map.put(USER_NAME, user.getName());
-            map.put(EMAIL, user.getEmail());
-            map.put(PHONE, String.valueOf(user.getPhone()));
-            params[count] = map;
-            count++;
-        }
-        int[] records = namedParameterJdbcTemplate.batchUpdate(query, params);
-        return records;
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @param user
-     * @return
-     * @throws IOException
-     */
-    @Override
-    public int removeUser(User user) throws IOException {
+    public int disableUserAccount(String userId) {
         String query = queryProvider.getTemplateQuery(QueryProvider.DISABLE_USER);
-        log.info(query);
         Map<String, String> params = new HashMap<>();
-        params.put(USER_NAME, user.getName());
-        return namedParameterJdbcTemplate.update(query, params);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @param users
-     * @return
-     * @throws IOException
-     */
-    @Override
-    public int removeMultipleUsers(List<User> users) throws IOException {
-        String query = "";
-        log.info(query);
-        String usernames = StringUtils.join(users.stream().map(user -> user.getName()).collect(Collectors.toList()), "','");
-        Map<String, String> params = new HashMap<>();
-        params.put(USER_NAME, usernames);
-        log.info("Params-> {}", params);
+        params.put(USER_ID, userId);
         return namedParameterJdbcTemplate.update(query, params);
     }
 

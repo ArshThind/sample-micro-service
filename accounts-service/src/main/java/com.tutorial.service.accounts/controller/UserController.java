@@ -1,12 +1,13 @@
 package com.tutorial.service.accounts.controller;
 
 import com.tutorial.commons.model.User;
+import com.tutorial.commons.utils.InputEntityValidator;
 import com.tutorial.service.accounts.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
+import javax.ws.rs.QueryParam;
 import java.util.List;
 
 /**
@@ -18,20 +19,26 @@ public class UserController {
 
     private UserService userService;
 
-    @Autowired
-    public UserController(UserService userService) {
+    private InputEntityValidator validator;
+
+    private static String CUSTOMER = "customer";
+
+    private static String VENDOR = "vendor";
+
+    public UserController(UserService userService, InputEntityValidator validator) {
         this.userService = userService;
+        this.validator = validator;
     }
 
     /**
      * REST endpoint to query all the users registered with the service
      *
      * @return
-     * @throws IOException
      */
     @RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
-    public List<User> getAllUsers() throws IOException {
-        return userService.getAllUsers();
+    public List<User> getAllUsers(@QueryParam("userType") String userType) {
+        return StringUtils.isEmpty(userType) ? userService.getAllUsers() :
+                userService.getUserByType(CUSTOMER.equals(userType) ? User.UserType.CUSTOMER : User.UserType.VENDOR);
     }
 
     /**
@@ -39,11 +46,10 @@ public class UserController {
      *
      * @param userName
      * @return
-     * @throws IOException
      */
-    @RequestMapping(value = "/{username}", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
-    public User getUser(@PathVariable("username") String userName) throws IOException {
-        return userService.getUser(userName);
+    @RequestMapping(value = "/user", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
+    public User getUser(@QueryParam("username") String userName) {
+        return userService.getUserByUsername(userName);
     }
 
     /**
@@ -51,51 +57,34 @@ public class UserController {
      *
      * @param user
      * @return
-     * @throws IOException
      */
     @RequestMapping(value = "/user", consumes = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.POST)
-    public int createUser(@RequestBody User user) throws IOException {
+    public int createUser(@RequestBody User user) {
         return userService.createUser(user);
     }
 
     /**
-     * REST endpoint to register multiple users with the service.
-     *
-     * @param users
-     * @return
-     * @throws IOException
-     */
-    @RequestMapping(consumes = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.POST)
-    public String createMultipleUsers(@RequestBody List<User> users) throws IOException {
-        return userService.addMultipleUsers(users);
-    }
-
-    /**
-     * REST endpoint to delete a user from the underlying store
+     * REST endpoint to remove a user from the service
      * <p>
      * NOTE: This will not actually delete the user from the underlying data store but will
-     * actually mark the user account as inactive.
+     * mark the user account as inactive.
      *
-     * @param user
+     * @param userId Id of the user to be removed from the service
      * @return
-     * @throws IOException
      */
-    @RequestMapping(value = "/user", consumes = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.DELETE)
-    public int deleteUser(@RequestBody User user) throws IOException {
-        return userService.removeUser(user);
+    @RequestMapping(value = "users/{userId}", consumes = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.DELETE)
+    public int removeUser(@PathVariable("userId") String userId) {
+        return userService.unregisterUser(userId);
     }
 
     /**
-     * REST endpoint to delete multiple users from the underlying datastore.
-     * NOTE: This will not actually delete the user from the underlying data store but will
-     * actually mark the user accounts as inactive.
+     * REST endpoint to retrieve a user based on the userId
      *
-     * @param users
-     * @return
-     * @throws IOException
+     * @param userId Id of the user
+     * @return User corresponding to the id if found, else HTTP Status 204
      */
-    @RequestMapping(consumes = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.DELETE)
-    public int deleteMultipleUsers(@RequestBody List<User> users) throws IOException {
-        return userService.removeMultipleUsers(users);
+    @GetMapping(value = "/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public User getUserById(@PathVariable("userId") String userId) {
+        return userService.getUserById(userId);
     }
 }

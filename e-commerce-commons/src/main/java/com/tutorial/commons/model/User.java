@@ -24,7 +24,7 @@ public class User {
      */
     public static User createDummyUser() {
         User user = new User();
-        user.id = 999;
+        user.id = -1;
         user.name = "John Doe";
         user.email = "johnDoe@test.com";
         user.phone = 9999999999l;
@@ -33,7 +33,7 @@ public class User {
     }
 
     /**
-     * Parameterized constructor that maps that data from a @{@link ResultSet}
+     * Parameterized constructor that maps the data from a @{@link ResultSet}
      * to a @{@link User} object.
      *
      * @param rs The resultSet obtained from the database.
@@ -41,10 +41,10 @@ public class User {
      */
     public User(ResultSet rs) throws SQLException {
         Assert.notNull(rs, "Result Set should not be null");
-        this.id = rs.getInt("id");
+        this.id = rs.getInt("user_id");
         this.name = rs.getString("user_name");
         this.email = rs.getString("email");
-        this.phone = rs.getLong("phone");
+        this.phone = rs.getLong("phone_num");
         this.userType = rs.getString("user_type").equals("C") ? UserType.CUSTOMER : UserType.VENDOR;
     }
 

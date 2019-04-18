@@ -7,6 +7,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
+import javax.annotation.PostConstruct;
+
 /**
  * Configuration class that is used to provide dynamic table names at runtime.
  */
@@ -32,8 +34,8 @@ public class TableNames {
     private String deliveryAddressTable;
     private String usersTable;
 
-    private final String[] SEARCH_STRINGS = {USERS, PRODUCTS, ORDER_STATUS, DEL_ADDRESS, ORDERS};
-    private final String[] REPLACE_STRINGS = {getUsersTable(), getProductsTable(), getOrderStatusTable(), getDeliveryAddressTable(), getOrdersTable()};
+    private String[] SEARCH_STRINGS;
+    private String[] REPLACE_STRINGS;
 
 
     /**
@@ -44,5 +46,11 @@ public class TableNames {
      */
     public String replaceTableNames(String query) {
         return StringUtils.replaceEach(query, SEARCH_STRINGS, REPLACE_STRINGS);
+    }
+
+    @PostConstruct
+    private void init() {
+        REPLACE_STRINGS = new String[]{getUsersTable(), getProductsTable(), getOrderStatusTable(), getDeliveryAddressTable(), getOrdersTable()};
+        SEARCH_STRINGS = new String[]{USERS, PRODUCTS, ORDER_STATUS, DEL_ADDRESS, ORDERS};
     }
 }

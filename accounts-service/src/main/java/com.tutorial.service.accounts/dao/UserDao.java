@@ -13,53 +13,48 @@ public interface UserDao {
     /**
      * Method to retrieve all users from the underlying database.
      *
-     * @return
-     * @throws IOException
+     * @return ArrayList of User
      */
-    List<User> getAllUsers() throws IOException;
+    List<User> getAllUsers();
 
     /**
      * Method to retrieve a user from the database based on the username.
      *
      * @param userName
      * @return
-     * @throws IOException
      */
-    User getUser(String userName) throws IOException;
+    User getUserByUsername(String userName);
 
     /**
      * Adds a new user record to the database.
      *
      * @param user
      * @return
-     * @throws IOException
      */
-    int createNewUser(User user) throws IOException;
-
-    /**
-     * Adds multiple users to the database.
-     *
-     * @param users
-     * @return
-     * @throws IOException
-     */
-    int[] createMultipleUsers(List<User> users) throws IOException;
+    int createNewUser(User user);
 
     /**
      * Marks the corresponding user record in the database as inactive.
      *
-     * @param user
+     * @param userId Id of the user
      * @return
      * @throws IOException
      */
-    int removeUser(User user) throws IOException;
+    int disableUserAccount(String userId);
 
     /**
-     * Marks the records which correspond to the supplied users as inactive.
+     * Retrieves the user records from the database based on the userType
      *
-     * @param users
+     * @param userType
      * @return
-     * @throws IOException
      */
-    int removeMultipleUsers(List<User> users) throws IOException;
+    List<User> getUsersByType(User.UserType userType);
+
+    /**
+     * Retrieves the user from the database based on userId
+     *
+     * @param userId Id of the user
+     * @return User matching the userId, if present else returns a dummy user.
+     */
+    User getUserById(String userId);
 }
