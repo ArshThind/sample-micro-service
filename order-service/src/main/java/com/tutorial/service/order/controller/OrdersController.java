@@ -2,7 +2,8 @@ package com.tutorial.service.order.controller;
 
 import com.tutorial.commons.model.Order;
 import com.tutorial.commons.utils.InputEntityValidator;
-import com.tutorial.service.order.request.OrderRequest;
+import com.tutorial.service.order.request.AddOrderRequest;
+import com.tutorial.service.order.request.AddProductRequest;
 import com.tutorial.service.order.service.OrdersService;
 import com.tutorial.service.order.util.OrdersValidator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,14 +11,13 @@ import org.springframework.http.MediaType;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
 
-import javax.ws.rs.QueryParam;
 import java.util.List;
 
 /**
  * A Spring REST controller that provides api endpoints to perform operations on @{@link com.tutorial.commons.model.Order}
  */
 @RestController
-@RequestMapping("/queries/orders")
+@RequestMapping("/orders")
 public class OrdersController {
 
     private OrdersService ordersService;
@@ -91,15 +91,12 @@ public class OrdersController {
     /**
      * REST endpoint to add product to an existing order.
      *
-     * @param productId id of the product to be added.
+     * @param request object encapsulating the request params.
      * @return true/false depending on whether the product addition was successful or not.
      */
-    @PutMapping(path = "queries/orders/order")
-    public boolean addProduct(
-            @QueryParam("productId") String productId
-            , @QueryParam("quantity") Integer qty
-            , @QueryParam("orderId") String orderId) {
-        return ordersService.addProduct(productId, qty, orderId);
+    @PutMapping(path = "/product",consumes = MediaType.APPLICATION_JSON_VALUE)
+    public boolean addProduct(@RequestBody AddProductRequest request) {
+        return ordersService.addProduct(request);
     }
 
     /**
@@ -109,7 +106,7 @@ public class OrdersController {
      * @return true/false depending on whether the order creation was successful or not.
      */
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public boolean createNewOrder(@RequestBody OrderRequest order) {
+    public boolean createNewOrder(@RequestBody AddOrderRequest order) {
         return ordersService.createOrder(order);
     }
 

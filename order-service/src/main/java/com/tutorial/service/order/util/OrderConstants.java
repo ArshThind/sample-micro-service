@@ -13,7 +13,11 @@ public class OrderConstants {
     public static final String USER_ID_PARAM = "userId";
     public static final String PRODUCT_ID_PARAM = "productId";
     public static final String PRODUCT_QTY_PARAM = "productQty";
-    public static final String LINE_ONE = "lineOne";
+    public static final String LINE_ONE_PARAM = "lineOne";
+    public static final String LINE_ONE = "line_one";
     public static final String CITY = "city";
     public static final String STATE = "state";
+    public static final String PIN_CODE_PARAM = "pinCode";
+    public static final String PIN_CODE = "pin_code";
+
 }

@@ -6,7 +6,8 @@ import com.tutorial.commons.model.User;
 import com.tutorial.service.order.dao.OrdersDao;
 import com.tutorial.service.order.dao.entity.OrderEntity;
 import com.tutorial.service.order.interaction.RestInteraction;
-import com.tutorial.service.order.request.OrderRequest;
+import com.tutorial.service.order.request.AddOrderRequest;
+import com.tutorial.service.order.request.AddProductRequest;
 import com.tutorial.service.order.service.OrdersService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -50,7 +51,7 @@ public class OrderServiceImpl implements OrdersService {
     }
 
     @Override
-    public boolean createOrder(OrderRequest order) {
+    public boolean createOrder(AddOrderRequest order) {
         OrderEntity entity = new OrderEntity();
         entity.setProductQtyMap(order.getProductQty());
         entity.setUserId(order.getUserId());
@@ -64,10 +65,16 @@ public class OrderServiceImpl implements OrdersService {
     }
 
     @Override
-    public boolean addProduct(String productId, Integer quantity, String orderId) {
-        return ordersDao.addProduct(productId, quantity, orderId);
+    public boolean addProduct(AddProductRequest request) {
+        return ordersDao.addProduct(request.getProductId(), request.getProductQty(), request.getOrderId(), request.getUserId());
     }
 
+    /**
+     * Utility method to create multiple instances of @{@link Order} from corresponding @{@link OrderEntity}
+     *
+     * @param orderEntityList ArrayList of order entity
+     * @return ArrayList of order
+     */
     private List<Order> constructOrder(List<OrderEntity> orderEntityList) {
         List<Order> orders = new ArrayList<>(orderEntityList.size());
         Map<Integer, User> userMap = interaction.getUserDetails(null);
@@ -80,13 +87,19 @@ public class OrderServiceImpl implements OrdersService {
                 prodQtyMap.put(productMap.get(entry.getKey()), entry.getValue());
             }
             order.setProducts(prodQtyMap);
-            //TODO: Set Logic for address
-            order.setAddress(null);
+            order.setAddress(s.getAddress());
+            calculateCost(order);
             orders.add(order);
         });
         return orders;
     }
 
+    /**
+     * Utility method to create an @{@link Order} from an {@link OrderEntity}
+     *
+     * @param entity instance of an {@link OrderEntity}
+     * @return an instance of {@link Order}
+     */
     private Order constructOrder(OrderEntity entity) {
         Map<Integer, User> userMap = interaction.getUserDetails(null);
         Map<Integer, Product> productMap = interaction.getProductDetails(null);
@@ -97,6 +110,21 @@ public class OrderServiceImpl implements OrdersService {
             prodQtyMap.put(productMap.get(entry.getKey()), entry.getValue());
         }
         order.setProducts(prodQtyMap);
+        order.setAddress(entity.getAddress());
+        calculateCost(order);
         return order;
+    }
+
+    /**
+     * Utility method to set the total cost for an order.
+     *
+     * @param order order for which the cost is to be calculated
+     */
+    private void calculateCost(Order order) {
+        double cost = 0.0;
+        for (Map.Entry<Product, Integer> entry : order.getProducts().entrySet()) {
+            cost += entry.getKey().getPrice() * entry.getValue();
+        }
+        order.setCost(cost);
     }
 }

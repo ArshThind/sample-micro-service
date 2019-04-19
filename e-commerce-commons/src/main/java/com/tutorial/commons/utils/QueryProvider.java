@@ -44,6 +44,8 @@ public class QueryProvider {
     public static final String ADD_PRODUCT_TO_ORDER = "queries/orders/add-product-to-order.sql";
     public static final String GET_ORDER_COUNT = "queries/orders/check-order-count.sql";
     public static final String CANCEL_ORDER = "queries/orders/cancel-order.sql";
+    public static final String ADD_STATUS_ROW = "queries/orders/add-order-status.sql";
+    public static final String ADD_ADDRESS_ROW = "queries/orders/add-order-address.sql";
 
     private static final Map<String, String> queries = new HashMap<>();
 
@@ -76,6 +78,7 @@ public class QueryProvider {
         queries.put(ADD_PRODUCT_TO_ORDER, constructQuery(ADD_PRODUCT_TO_ORDER));
         queries.put(GET_ORDER_COUNT, constructQuery(GET_ORDER_COUNT));
         queries.put(CANCEL_ORDER, constructQuery(CANCEL_ORDER));
+        queries.put(ADD_STATUS_ROW, constructQuery(ADD_STATUS_ROW));
         log.warn("Queries loaded successfully.");
     }
 
