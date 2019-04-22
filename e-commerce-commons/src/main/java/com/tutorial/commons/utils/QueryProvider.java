@@ -33,6 +33,7 @@ public class QueryProvider {
     public static final String GET_USER_BY_USERNAME = "queries/users/get-user-by-username.sql";
     public static final String GET_USER_BY_TYPE = "queries/users/get-users-by-type.sql";
     public static final String GET_USER_BY_ID = "queries/users/get-user-by-id.sql";
+    public static final String GET_USER_LIST_BY_USER_IDS = "queries/users/get-users-by-id-set.sql";
 
     //===================================================================================
     // ~ ORDER QUERIES
@@ -67,6 +68,7 @@ public class QueryProvider {
         queries.put(GET_USER_BY_USERNAME, constructQuery(GET_USER_BY_USERNAME));
         queries.put(GET_USER_BY_TYPE, constructQuery(GET_USER_BY_TYPE));
         queries.put(GET_USER_BY_ID, constructQuery(GET_USER_BY_ID));
+        queries.put(GET_USER_LIST_BY_USER_IDS, constructQuery(GET_USER_LIST_BY_USER_IDS));
 
         //=================================================================================
         //~ LOAD ORDER QUERIES

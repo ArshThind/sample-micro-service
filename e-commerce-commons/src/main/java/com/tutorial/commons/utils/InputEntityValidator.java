@@ -1,6 +1,6 @@
 package com.tutorial.commons.utils;
 
-import com.tutorial.commons.model.BadInputException;
+import com.tutorial.commons.exceptions.BadInputException;
 
 /**
  * Abstract class to be extended by the entity validators to validate the input received.
@@ -22,7 +22,7 @@ public abstract class InputEntityValidator<T> {
         if (validateMandatoryParameters(t) && validateOptionalParameters(t)) {
             return true;
         }
-        throw new BadInputException(message);
+        return false;
     }
 
     /**

@@ -14,23 +14,23 @@ public interface UserService {
     /**
      * Retrieves all the users registered with the service.
      *
-     * @return
+     * @return ArrayList of users
      */
     List<User> getAllUsers();
 
     /**
      * Retrieves the user registered with the service based on the userName
      *
-     * @param userName
-     * @return
+     * @param userName username of the user
+     * @return User with the given username
      */
     User getUserByUsername(String userName);
 
     /**
      * Registers a new user with the service.
      *
-     * @param user
-     * @return
+     * @param user User to be registered
+     * @return 1 if user was successfully registered
      */
     int createUser(User user);
 
@@ -38,7 +38,7 @@ public interface UserService {
      * Un-registers a user from the service.
      *
      * @param userId Id of the user to be un-registered.
-     * @return
+     * @return 1 is account was successfully disabled, else 0
      */
     @Transactional
     int unregisterUser(String userId);
@@ -58,4 +58,12 @@ public interface UserService {
      * @return ArrayList of users matching the given type if present, else empty list.
      */
     List<User> getUserByType(User.UserType type);
+
+    /**
+     * Retrieves a list of users based on comma separated userIds.
+     *
+     * @param userIds comma separated list userIds
+     * @return ArrayList of users.
+     */
+    List<User> getUsersByIds(String userIds);
 }

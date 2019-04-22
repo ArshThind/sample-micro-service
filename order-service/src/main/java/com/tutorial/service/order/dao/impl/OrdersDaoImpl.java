@@ -48,7 +48,7 @@ public class OrdersDaoImpl implements OrdersDao {
     }
 
     @Override
-    @DaoProfiler("get-orders-by-user")
+    @DaoProfiler(queryName = "get-orders-by-user")
     public List<OrderEntity> getOrdersByUser(String userId) {
         String query = queryProvider.getTemplateQuery(QueryProvider.GET_ORDERS_BY_USER);
         List<OrderEntity> orderEntityList = new ArrayList<>();
@@ -63,7 +63,7 @@ public class OrdersDaoImpl implements OrdersDao {
     }
 
     @Override
-    @DaoProfiler("get-orders-by-product")
+    @DaoProfiler(queryName = "get-orders-by-product")
     public List<OrderEntity> getOrdersByProduct(String productId) {
         String query = queryProvider.getTemplateQuery(QueryProvider.GET_ORDERS_BY_PRODUCT);
         List<OrderEntity> orderEntityList = new ArrayList<>();
@@ -78,17 +78,17 @@ public class OrdersDaoImpl implements OrdersDao {
     }
 
     @Override
-    @DaoProfiler("get-order-by-orderId")
+    @DaoProfiler(queryName = "get-order-by-orderId")
     public OrderEntity getOrdersById(String orderId) {
         String query = queryProvider.getTemplateQuery(QueryProvider.GET_ORDER_BY_ID);
         Map<String, String> params = new HashMap<>(1);
         params.put(ORDER_ID_PARAM, orderId);
-        OrderEntity entity = namedParameterJdbcTemplate.query(query, rs -> rs.next() ? mapOrder(rs) : null);
+        OrderEntity entity = namedParameterJdbcTemplate.query(query, params,rs -> rs.next() ? mapOrder(rs) : null);
         return entity;
     }
 
     @Override
-    @DaoProfiler("create-new-order")
+    @DaoProfiler(queryName = "create-new-order")
     public boolean addOrder(OrderEntity order) {
         String query = queryProvider.getTemplateQuery(QueryProvider.ADD_NEW_ORDER);
         Map<String, String> params[] = new HashMap[order.getProductQtyMap().size()];
@@ -104,7 +104,7 @@ public class OrdersDaoImpl implements OrdersDao {
     }
 
     @Override
-    @DaoProfiler("add-product-to-order")
+    @DaoProfiler(queryName = "add-product-to-order")
     public boolean addProduct(int productId, int quantity, int orderId, int userId) {
         Future<Boolean> checkOrderResult = executorService.submit(() -> checkOrderExists(String.valueOf(orderId)));
         String query = queryProvider.getTemplateQuery(queryProvider.getTemplateQuery(QueryProvider.ADD_PRODUCT_TO_ORDER));
@@ -125,7 +125,7 @@ public class OrdersDaoImpl implements OrdersDao {
     }
 
     @Override
-    @DaoProfiler("cancel-order")
+    @DaoProfiler(queryName = "cancel-order")
     public boolean cancelOrder(String orderId) {
         Future<Boolean> checkOrderResult = executorService.submit(() -> checkOrderExists(orderId));
         String query = queryProvider.getTemplateQuery(QueryProvider.CANCEL_ORDER);
@@ -149,7 +149,7 @@ public class OrdersDaoImpl implements OrdersDao {
      * @param orderId Id of the order to be checked
      * @return true if the order already exists in the database, else false.
      */
-    @DaoProfiler("check-order")
+    @DaoProfiler(queryName = "check-order")
     private boolean checkOrderExists(String orderId) {
         String query = queryProvider.getTemplateQuery(QueryProvider.GET_ORDER_COUNT);
         Map<String, String> params = new HashMap<>(1);
@@ -186,7 +186,7 @@ public class OrdersDaoImpl implements OrdersDao {
     /**
      * Utility method to create an order status row when creating a new order
      */
-    @DaoProfiler("create-status-row")
+    @DaoProfiler(queryName = "create-status-row")
     private void createStatusRow() {
         String query = queryProvider.getTemplateQuery(QueryProvider.ADD_STATUS_ROW);
         namedParameterJdbcTemplate.update(query, new HashMap<>(0));
@@ -197,7 +197,7 @@ public class OrdersDaoImpl implements OrdersDao {
      *
      * @param address Object containing the address information
      */
-    @DaoProfiler("add-address")
+    @DaoProfiler(queryName = "add-address")
     private void createAddressRow(Address address) {
         String query = queryProvider.getTemplateQuery(QueryProvider.ADD_ADDRESS_ROW);
         Map<String, String> params = new HashMap<>();
