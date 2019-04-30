@@ -45,6 +45,15 @@ public class QueryProvider {
     public static final String GET_ORDER_COUNT = "queries/orders/check-order-count.sql";
     public static final String CANCEL_ORDER = "queries/orders/cancel-order.sql";
 
+    //=====================================================================================
+    // ~ PRODUCT QUERIES
+    public static final String GET_ALL_PRODUCTS = "queries/products/get-all-products.sql";
+    public static final String GET_PRODUCT_BY_ID = "queries/products/get-product-by-id.sql";
+    public static final String GET_PRODUCTS_BY_CATEGORY = "queries/products/get-products-by-category.sql";
+    public static final String ADD_NEW_PRODUCT = "queries/products/add-new-product.sql";
+    public static final String REMOVE_PRODUCT = "queries/products/remove-product.sql";
+
+
     private static final Map<String, String> queries = new HashMap<>();
 
     /**
