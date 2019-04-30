@@ -16,3 +16,10 @@ datasource:
     password: 'demo_pass'
     min: 1
     max: 10
+
+tables:
+  productsTable: products
+  ordersTable: orders
+  orderStatusTable: order_status
+  deliveryAddressTable: del_address
+  usersTable: users

@@ -1,13 +1,18 @@
 package com.tutorial.service.accounts.controller;
 
+import com.tutorial.commons.exceptions.BadInputException;
 import com.tutorial.commons.model.User;
-import com.tutorial.commons.utils.InputEntityValidator;
 import com.tutorial.service.accounts.service.UserService;
-import org.apache.commons.lang3.StringUtils;
+import com.tutorial.service.accounts.utils.UserInputValidator;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
 import java.util.List;
 
 /**
@@ -15,52 +20,100 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/users")
+@Slf4j
 public class UserController {
 
     private UserService userService;
 
-    private InputEntityValidator validator;
+    private UserInputValidator validator;
 
-    private static String CUSTOMER = "customer";
+    private static String CUSTOMER = "C";
 
-    private static String VENDOR = "vendor";
-
-    public UserController(UserService userService, InputEntityValidator validator) {
+    @Autowired
+    public UserController(UserService userService, UserInputValidator validator) {
         this.userService = userService;
         this.validator = validator;
     }
 
     /**
-     * REST endpoint to query all the users registered with the service
+     * REST endpoint to query all the users registered with the service OR to query users based on userType OR multiple userIds
      *
-     * @return
+     * @return ArrayList of users if users exist, else HTTP Status 204
      */
     @RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
-    public List<User> getAllUsers(@QueryParam("userType") String userType) {
-        return StringUtils.isEmpty(userType) ? userService.getAllUsers() :
-                userService.getUserByType(CUSTOMER.equals(userType) ? User.UserType.CUSTOMER : User.UserType.VENDOR);
+    public List<User> getUsers(@QueryParam("userType") String userType, @QueryParam("userIds") String userIds) {
+        try {
+            int requestType = validator.validateGetUserRequest(userType, userIds);
+            List<User> users;
+            switch (requestType) {
+                case 1:
+                    users = userService.getAllUsers();
+                    break;
+                case 2:
+                    users = userService.getUserByType(determineUserType(userType));
+                    break;
+                case 3:
+                    users = userService.getUsersByIds(userIds);
+                    break;
+                default:
+                    throw new WebApplicationException(Response.Status.NO_CONTENT);
+
+            }
+            if (users.size() > 0) {
+                return users;
+            }
+        } catch (BadInputException e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("Error occurred while execution: {}", e);
+            throw new WebApplicationException("Error! Service Unavailable.", Response.Status.INTERNAL_SERVER_ERROR);
+        }
+        throw new WebApplicationException(Response.Status.NO_CONTENT);
     }
 
     /**
      * REST endpoint to query a user based on the username.
      *
-     * @param userName
-     * @return
+     * @param userName username of the user
+     * @return User with the given username, if exists, else returns HTTP Status 204
      */
     @RequestMapping(value = "/user", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
-    public User getUser(@QueryParam("username") String userName) {
-        return userService.getUserByUsername(userName);
+    public User getUsersByUsername(@QueryParam("username") String userName) {
+        try {
+            validator.validateUsernameInput(userName);
+            User user = userService.getUserByUsername(userName);
+            if (user != null) {
+                return user;
+            }
+        } catch (BadInputException e) {
+            throw e;
+        } catch (DataAccessException e) {
+            log.error("Error occurred while execution: {}", e);
+            throw new WebApplicationException("Error! Service Unavailable.", Response.Status.INTERNAL_SERVER_ERROR);
+        }
+        throw new WebApplicationException(Response.Status.NO_CONTENT);
     }
 
     /**
      * REST endpoint to register a new user with the service.
      *
-     * @param user
-     * @return
+     * @param user user to be created
+     * @return {@link Response} encapsulating the http status
      */
     @RequestMapping(value = "/user", consumes = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.POST)
-    public int createUser(@RequestBody User user) {
-        return userService.createUser(user);
+    public Response createUser(@RequestBody User user) {
+        try {
+            validator.validateInputUser(user);
+            if (userService.createUser(user) > 0) {
+                return Response.status(Response.Status.CREATED).build();
+            }
+        } catch (BadInputException e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("Error occurred while execution: {}", e);
+            throw new WebApplicationException("Error! Service Unavailable.", Response.Status.INTERNAL_SERVER_ERROR);
+        }
+        return Response.status(Response.Status.ACCEPTED).build();
     }
 
     /**
@@ -70,11 +123,22 @@ public class UserController {
      * mark the user account as inactive.
      *
      * @param userId Id of the user to be removed from the service
-     * @return
+     * @return {@link Response} encapsulating the http status
      */
-    @RequestMapping(value = "users/{userId}", consumes = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.DELETE)
-    public int removeUser(@PathVariable("userId") String userId) {
-        return userService.unregisterUser(userId);
+    @RequestMapping(value = "/{userId}", consumes = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.DELETE)
+    public Response removeUser(@PathVariable("userId") String userId) {
+        try {
+            validator.validateUserId(userId);
+            if (userService.unregisterUser(userId) > 1) {
+                return Response.status(Response.Status.OK).build();
+            }
+        } catch (BadInputException e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("Error occurred while execution: {}", e);
+            throw new WebApplicationException("Error! Service Unavailable.", Response.Status.INTERNAL_SERVER_ERROR);
+        }
+        return Response.status(Response.Status.ACCEPTED).build();
     }
 
     /**
@@ -85,6 +149,28 @@ public class UserController {
      */
     @GetMapping(value = "/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public User getUserById(@PathVariable("userId") String userId) {
-        return userService.getUserById(userId);
+        try {
+            validator.validateUserId(userId);
+            User user = userService.getUserById(userId);
+            if (user != null) {
+                return user;
+            }
+        } catch (BadInputException e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("Error occurred while execution: {}", e);
+            throw new WebApplicationException("Error! Service Unavailable.", Response.Status.INTERNAL_SERVER_ERROR);
+        }
+        throw new WebApplicationException(Response.Status.NO_CONTENT);
+    }
+
+    /**
+     * Utility method to determine {@link com.tutorial.commons.model.User.UserType} for an incoming request.
+     *
+     * @param userType userType passed as input.
+     * @return UserType corresponding to the passed input.
+     */
+    private User.UserType determineUserType(String userType) {
+        return userType.equals(CUSTOMER) ? User.UserType.CUSTOMER : User.UserType.VENDOR;
     }
 }

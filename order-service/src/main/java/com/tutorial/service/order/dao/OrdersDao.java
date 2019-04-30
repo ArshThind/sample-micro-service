@@ -56,9 +56,10 @@ public interface OrdersDao {
      * @param productId id of the product.
      * @param quantity  quantity of the product to be added.
      * @param orderId   id of the order.
+     * @param userId    if of the user.
      * @return true/false depending on whether the product addition was successful or not.
      */
-    boolean addProduct(String productId, Integer quantity, String orderId);
+    boolean addProduct(int productId, int quantity, int orderId, int userId);
 
     /**
      * Cancels an existing order.

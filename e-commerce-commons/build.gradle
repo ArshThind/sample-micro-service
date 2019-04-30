@@ -19,4 +19,6 @@ dependencies {
     compile group: 'org.aspectj', name: 'aspectjweaver', version: '1.9.3'
     // https://mvnrepository.com/artifact/org.aspectj/aspectjrt
     compile group: 'org.aspectj', name: 'aspectjrt', version: '1.9.3'
+    // https://mvnrepository.com/artifact/javax.ws.rs/javax.ws.rs-api
+    compile group: 'javax.ws.rs', name: 'javax.ws.rs-api', version: '2.1'
 }

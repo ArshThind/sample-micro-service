@@ -2,11 +2,11 @@ INSERT INTO [USERS] (
 user_name,
 email,
 phone_num,
-user_type,
+user_type
 )
 VALUES (
-:userName,
+:username,
 :email,
 :phone,
-:userType,
+:userType
 )

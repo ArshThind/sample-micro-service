@@ -3,10 +3,13 @@ package com.tutorial.service.accounts.service.impl;
 import com.tutorial.commons.model.User;
 import com.tutorial.service.accounts.dao.UserDao;
 import com.tutorial.service.accounts.service.UserService;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Base implementation of the @{@link UserService}
@@ -26,75 +29,41 @@ public class UserServiceImpl implements UserService {
         this.userDao = userDao;
     }
 
-    /**
-     * {@inheritDoc}
-     * Delegates to {@link UserDao}
-     *
-     * @return
-     */
     @Override
     public List<User> getAllUsers() {
         return userDao.getAllUsers();
     }
 
-    /**
-     * {@inheritDoc}
-     * Delegates to {@link UserDao}
-     *
-     * @param userName
-     * @return
-     */
     @Override
     public User getUserByUsername(String userName) {
         return userDao.getUserByUsername(userName);
     }
 
-    /**
-     * {@inheritDoc}
-     * Delegates to {@link UserDao}
-     *
-     * @param user
-     * @return
-     */
     @Override
     public int createUser(User user) {
         return userDao.createNewUser(user);
     }
 
-    /**
-     * {@inheritDoc}
-     * Delegates to {@link UserDao}
-     *
-     * @param userId
-     * @return
-     */
     @Override
     public int unregisterUser(String userId) {
         return userDao.disableUserAccount(userId);
     }
 
-    /**
-     * {@inheritDoc}
-     * Delegates to a @{@link UserDao}
-     *
-     * @param userId id of the user
-     * @return
-     */
     @Override
     public User getUserById(String userId) {
         return userDao.getUserById(userId);
     }
 
-    /**
-     * {@inheritDoc}
-     * Delegates to a @{@link UserDao}
-     *
-     * @param type id of the user
-     * @return
-     */
     @Override
     public List<User> getUserByType(User.UserType type) {
         return userDao.getUsersByType(type);
+    }
+
+    @Override
+    public List<User> getUsersByIds(String userIds) {
+        Set<String> userIdSet = new HashSet<>();
+        CollectionUtils.addAll(userIdSet, userIds.split(","));
+        return userDao.getUserById(userIdSet);
     }
 
 }

@@ -1,7 +1,10 @@
 package com.tutorial.service.order.service;
 
 import com.tutorial.commons.model.Order;
-import com.tutorial.service.order.request.OrderRequest;
+import com.tutorial.service.order.request.AddOrderRequest;
+import com.tutorial.service.order.request.AddProductRequest;
+import org.springframework.dao.DataAccessException;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -48,7 +51,8 @@ public interface OrdersService {
      * @param order Order to be registered
      * @return true/false depending on whether the order was registered successfully or not.
      */
-    boolean createOrder(OrderRequest order);
+    @Transactional(rollbackFor = DataAccessException.class)
+    boolean createOrder(AddOrderRequest order);
 
     /**
      * Cancels an order registered with the service.
@@ -61,10 +65,8 @@ public interface OrdersService {
     /**
      * Adds a new product to the order.
      *
-     * @param productId The productId of the product to be added.
-     * @param quantity
-     * @param orderId The productId of the product to be added.
+     * @param request object encapsulating the request params
      * @return true/false depending on whether the product was added successfully or not.
      */
-    boolean addProduct(String productId, Integer quantity, String orderId);
+    boolean addProduct(AddProductRequest request);
 }

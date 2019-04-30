@@ -33,6 +33,7 @@ public class QueryProvider {
     public static final String GET_USER_BY_USERNAME = "queries/users/get-user-by-username.sql";
     public static final String GET_USER_BY_TYPE = "queries/users/get-users-by-type.sql";
     public static final String GET_USER_BY_ID = "queries/users/get-user-by-id.sql";
+    public static final String GET_USER_LIST_BY_USER_IDS = "queries/users/get-users-by-id-set.sql";
 
     //===================================================================================
     // ~ ORDER QUERIES
@@ -44,6 +45,8 @@ public class QueryProvider {
     public static final String ADD_PRODUCT_TO_ORDER = "queries/orders/add-product-to-order.sql";
     public static final String GET_ORDER_COUNT = "queries/orders/check-order-count.sql";
     public static final String CANCEL_ORDER = "queries/orders/cancel-order.sql";
+    public static final String ADD_STATUS_ROW = "queries/orders/add-order-status.sql";
+    public static final String ADD_ADDRESS_ROW = "queries/orders/add-order-address.sql";
 
     //=====================================================================================
     // ~ PRODUCT QUERIES
@@ -74,6 +77,7 @@ public class QueryProvider {
         queries.put(GET_USER_BY_USERNAME, constructQuery(GET_USER_BY_USERNAME));
         queries.put(GET_USER_BY_TYPE, constructQuery(GET_USER_BY_TYPE));
         queries.put(GET_USER_BY_ID, constructQuery(GET_USER_BY_ID));
+        queries.put(GET_USER_LIST_BY_USER_IDS, constructQuery(GET_USER_LIST_BY_USER_IDS));
 
         //=================================================================================
         //~ LOAD ORDER QUERIES
@@ -85,6 +89,7 @@ public class QueryProvider {
         queries.put(ADD_PRODUCT_TO_ORDER, constructQuery(ADD_PRODUCT_TO_ORDER));
         queries.put(GET_ORDER_COUNT, constructQuery(GET_ORDER_COUNT));
         queries.put(CANCEL_ORDER, constructQuery(CANCEL_ORDER));
+        queries.put(ADD_STATUS_ROW, constructQuery(ADD_STATUS_ROW));
         log.warn("Queries loaded successfully.");
     }
 
