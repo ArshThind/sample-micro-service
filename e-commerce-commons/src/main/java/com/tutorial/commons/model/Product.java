@@ -10,6 +10,7 @@ import lombok.Setter;
 @Setter
 public class Product {
 
+
     /**
      * Util method to create a dummy product. Useful for mocking while developing.
      *
@@ -40,6 +41,11 @@ public class Product {
      * product price
      */
     private String category;
+
+    /**
+     * product Description
+     */
+    private String description;
 
     /**
      * product Price
