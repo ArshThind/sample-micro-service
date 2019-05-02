@@ -1,16 +1,20 @@
 package com.tutorial.service.order.controller;
 
+import com.tutorial.commons.exceptions.BadInputException;
 import com.tutorial.commons.model.Order;
-import com.tutorial.commons.utils.InputEntityValidator;
 import com.tutorial.service.order.request.AddOrderRequest;
 import com.tutorial.service.order.request.AddProductRequest;
 import com.tutorial.service.order.service.OrdersService;
 import com.tutorial.service.order.util.OrdersValidator;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
 
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
 import java.util.List;
 
 /**
@@ -18,11 +22,12 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/orders")
+@Slf4j
 public class OrdersController {
 
     private OrdersService ordersService;
 
-    private InputEntityValidator validator;
+    private OrdersValidator validator;
 
     /**
      * Parameterized constructor that is used to wire in the @{@link OrdersService} and @{@link OrdersValidator}
@@ -31,7 +36,7 @@ public class OrdersController {
      * @param validator     inputValidator implementation
      */
     @Autowired
-    public OrdersController(OrdersService ordersService, InputEntityValidator validator) {
+    public OrdersController(OrdersService ordersService, OrdersValidator validator) {
         Assert.notNull(ordersService, "Order Service should not be null");
         Assert.notNull(validator, "Orders InputEntityValidator should not be null");
         this.ordersService = ordersService;
@@ -48,7 +53,11 @@ public class OrdersController {
      */
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public List<Order> getAllOrders() {
-        return ordersService.getAllOrders();
+        try {
+            return ordersService.getAllOrders();
+        } catch (Exception e) {
+            throw new WebApplicationException("Error! Service Unavailable.", Response.Status.INTERNAL_SERVER_ERROR);
+        }
     }
 
     /**
@@ -59,7 +68,19 @@ public class OrdersController {
      */
     @GetMapping(path = "/product/{productId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<Order> getOrdersByProduct(@PathVariable("productId") String productId) {
-        return ordersService.getOrdersByProduct(productId);
+        try {
+            validator.validateProductId(productId);
+            List<Order> orders = ordersService.getOrdersByProduct(productId);
+            checkEmpty(orders);
+            return orders;
+        } catch (BadInputException e) {
+            throw e;
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("Error occurred while getting orders, Error: {}", e);
+            throw new WebApplicationException("Error! Service Unavailable.", Response.Status.INTERNAL_SERVER_ERROR);
+        }
     }
 
     /**
@@ -70,18 +91,44 @@ public class OrdersController {
      */
     @GetMapping(path = "/user/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<Order> getOrdersByUser(@PathVariable("userId") String userId) {
-        return ordersService.getOrdersByUser(userId);
+        try {
+            validator.validateUserId(userId);
+            List<Order> orders = ordersService.getOrdersByUser(userId);
+            checkEmpty(orders);
+            return orders;
+        } catch (BadInputException e) {
+            throw e;
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("Error occurred while getting orders, Error: {}", e);
+            throw new WebApplicationException("Error! Service Unavailable.", Response.Status.INTERNAL_SERVER_ERROR);
+        }
     }
 
     /**
      * REST end point to query order based on product id.
      *
      * @param orderId id of the order
-     * @return Order having the same id as the passed input id.
+     * @return Order having the same id as the passed input id, if exists else returns Http Status 204.
      */
     @GetMapping(path = "/{orderId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public Order getOrderById(@PathVariable("orderId") String orderId) {
-        return ordersService.getOrderById(orderId);
+        try {
+            validator.validateOrderId(orderId);
+            Order order = ordersService.getOrderById(orderId);
+            if (order == null) {
+                throw new WebApplicationException(Response.Status.NO_CONTENT);
+            }
+            return order;
+        } catch (BadInputException e) {
+            throw e;
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("Error occurred while getting orders, Error: {}", e);
+            throw new WebApplicationException("Error! Service Unavailable.", Response.Status.INTERNAL_SERVER_ERROR);
+        }
     }
 
 
@@ -92,32 +139,79 @@ public class OrdersController {
      * REST endpoint to add product to an existing order.
      *
      * @param request object encapsulating the request params.
-     * @return true/false depending on whether the product addition was successful or not.
+     * @return Http Status 200 if successful else
      */
-    @PutMapping(path = "/product",consumes = MediaType.APPLICATION_JSON_VALUE)
-    public boolean addProduct(@RequestBody AddProductRequest request) {
-        return ordersService.addProduct(request);
+    @PutMapping(path = "/product", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public Response addProduct(@RequestBody AddProductRequest request) {
+        try {
+            if (ordersService.addProduct(request)) {
+                return Response.status(Response.Status.OK).build();
+            }
+            return Response.notModified().build();
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("Error occurred while adding product, Error: {}", e);
+            throw new WebApplicationException("Error! Service Unavailable.", Response.Status.INTERNAL_SERVER_ERROR);
+        }
     }
 
     /**
      * REST endpoint to create a new order.
      *
      * @param order order to be created.
-     * @return true/false depending on whether the order creation was successful or not.
+     * @return Http Status 200 if successful else
      */
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public boolean createNewOrder(@RequestBody AddOrderRequest order) {
-        return ordersService.createOrder(order);
+    public Response createNewOrder(@RequestBody AddOrderRequest order) {
+        try {
+            validator.validateCreateOrderRequest(order);
+            if (ordersService.createOrder(order)) {
+                return Response.ok().build();
+            }
+            return Response.notModified().build();
+        } catch (BadInputException e) {
+            throw e;
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("Error occurred while creating a new order, Error: {}", e);
+            throw new WebApplicationException("Error! Service Unavailable.", Response.Status.INTERNAL_SERVER_ERROR);
+        }
     }
 
     /**
      * REST end point to cancel an existing order.
      *
      * @param orderId id of the order to be cancelled
-     * @return true/false depending on whether the order was successfully cancelled or not.
+     * @return Http Status 200 if successful else
      */
     @PostMapping(path = "/{orderId}")
-    public boolean cancelOrder(@PathVariable("orderId") String orderId) {
-        return ordersService.cancelOrder(orderId);
+    public Response cancelOrder(@PathVariable("orderId") String orderId) {
+        try {
+            validator.validateOrderId(orderId);
+            if (ordersService.cancelOrder(orderId)) {
+                return Response.accepted().build();
+            }
+            return Response.notModified().build();
+        } catch (BadInputException e) {
+            throw e;
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("Error occurred while cancelling the order, Error: {}", e);
+            throw new WebApplicationException("Error! Service Unavailable.", Response.Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Utility method to check if the a list is empty.
+     *
+     * @param orders
+     */
+    private void checkEmpty(List<Order> orders) {
+        if (CollectionUtils.isEmpty(orders)) {
+            throw new WebApplicationException(Response.Status.NO_CONTENT);
+        }
     }
 }

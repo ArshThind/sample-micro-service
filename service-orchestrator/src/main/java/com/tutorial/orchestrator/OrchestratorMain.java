@@ -3,12 +3,16 @@ package com.tutorial.orchestrator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 
+/**
+ * The core class for the reverse proxy. This will setup a reverse zuul proxy and
+ * will route the requests to micro-services registered with eureka server.
+ */
+@EnableEurekaClient
 @SpringBootApplication
 @EnableZuulProxy
-@EnableDiscoveryClient
 @Slf4j
 public class OrchestratorMain {
 

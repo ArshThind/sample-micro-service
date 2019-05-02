@@ -4,15 +4,6 @@ server:
     context-path: /e-commerce
 
 eureka:
-#  server:
-#    enable-self-preservation: false
-#  dashboard:
-#    enabled: true
-#    path: /registry
-#  instance:
-#    hostname: 127.0.0.1
-#    appname: orchestrator
-#    prefer-ip-address: true
   client:
     register-with-eureka: true
     fetch-registry: true
@@ -20,39 +11,24 @@ eureka:
       defaultZone: http://localhost:8794/e-commerce/eureka
 
 spring:
-#  main:
-#    allow-bean-definition-overriding: true
-#  autoconfigure:
-#    exclude:
   application:
     name: orchestrator
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
 
 zuul:
-  prefix: /rest
+  prefix: /rest/api
   routes:
-#    account:
-#      path: /account/**
-#      serviceId: accounts
+    accounts:
+      path: /accounts/**
+      serviceId: accounts-service
     orders:
       path: /orders/**
-      url: http://localhost:7777/
-#      serviceId: orders
-#      strip-prefix: false
-#ribbon:
-#  eureka:
-#    enabled: false
-#
-#orders:
-#  ribbon:
-#    listOfServers: ${EUREKA_URI:http://localhost:8794/e-commerce/eureka}
-#
-#accounts:
-#  ribbon:
-#    listOfServers: http://localhost:8794/e-commerce/eureka
+      serviceId: orders-service
+    products:
+      path: /products/**
+      serviceId: products-service
 
-ribbon:
-  eureka:
-    enabled: false
 management:
   endpoint:
   endpoints:

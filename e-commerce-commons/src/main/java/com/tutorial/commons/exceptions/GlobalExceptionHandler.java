@@ -47,4 +47,10 @@ public class GlobalExceptionHandler {
                         HttpStatus.valueOf(response.getStatus()));
         }
     }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ExceptionResponse> handleUncaughtExceptions() {
+        ExceptionResponse response = ExceptionResponse.buildInternalErrorResponse("Error! Service Unavailable.");
+        return new ResponseEntity<>(response, response.getStatus());
+    }
 }

@@ -46,7 +46,7 @@ public class CommonSpringConfig {
     }
 
     /**
-     * Spring bean containing the data source properties for the configured datasourec.
+     * Spring bean containing the data source properties for the configured datasource.
      *
      * @param properties @{@link DataSourceProperties} object encapsulating the properties of the datasource.
      * @return HikariConfig object to be supplied to a HikariCP datasource implementation.
@@ -87,6 +87,7 @@ public class CommonSpringConfig {
      * @throws SQLException
      */
     @Bean
+    @Primary
     public PlatformTransactionManager transactionManager(DataSource dataSource) throws SQLException {
         return new DataSourceTransactionManager(dataSource);
     }
