@@ -101,6 +101,9 @@ public class OrderServiceImpl implements OrdersService {
      * @return an instance of {@link Order}
      */
     private Order constructOrder(OrderEntity entity) {
+        if (entity == null) {
+            return null;
+        }
         Map<Integer, User> userMap = interaction.getUserDetails(null);
         Map<Integer, Product> productMap = interaction.getProductDetails(null);
         Order order = new Order();

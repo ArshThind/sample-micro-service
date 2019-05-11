@@ -83,7 +83,7 @@ public class OrdersDaoImpl implements OrdersDao {
         String query = queryProvider.getTemplateQuery(QueryProvider.GET_ORDER_BY_ID);
         Map<String, String> params = new HashMap<>(1);
         params.put(ORDER_ID_PARAM, orderId);
-        OrderEntity entity = namedParameterJdbcTemplate.query(query, params,rs -> rs.next() ? mapOrder(rs) : null);
+        OrderEntity entity = namedParameterJdbcTemplate.query(query, params, rs -> rs.next() ? mapOrder(rs) : null);
         return entity;
     }
 
@@ -155,8 +155,10 @@ public class OrdersDaoImpl implements OrdersDao {
         Map<String, String> params = new HashMap<>(1);
         params.put(ORDER_ID_PARAM, orderId);
         return namedParameterJdbcTemplate.query(query, params, rs -> {
-            rs.next();
-            return rs.getInt(1) > 0;
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+            return false;
         });
     }
 

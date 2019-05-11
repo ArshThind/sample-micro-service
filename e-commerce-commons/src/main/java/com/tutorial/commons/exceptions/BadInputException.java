@@ -15,4 +15,8 @@ public class BadInputException extends WebApplicationException {
     public BadInputException(String message, Response.Status status) {
         super(message, status);
     }
+
+    public BadInputException(String message) {
+        this(message, Response.Status.BAD_REQUEST);
+    }
 }

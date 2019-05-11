@@ -1,3 +1,7 @@
+spring:
+  application:
+    name: accounts-service
+
 server:
   port: 4880
   servlet:
@@ -20,16 +24,19 @@ tables:
   deliveryAddressTable: del_address
   usersTable: users
 
-#eureka:
-#  instance:
-#    status-page-url: http://localhost:${server.port}/actuator/info
-#  client:
-#    serviceUrl:
-#      defaultZone: http://localhost:8794/e-commerce/eureka/
+eureka:
+  client:
+    enabled: true
+    service-url:
+      defaultZone: http://localhost:8794/e-commerce/eureka
+  instance:
+    status-page-url-path: ${server.servlet.context-path}/actuator/info
+    health-check-url-path: ${server.servlet.context-path}/actuator/health
+    home-page-url: http://localhost:4880/accounts-service/
+    prefer-ip-address: true
+    metadata-map:
+      context-path: ${server.servlet.context-path}
 
-spring:
-  application:
-    name: accounts
 
 
 

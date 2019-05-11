@@ -5,8 +5,13 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.JdbcTemplateAutoConfiguration;
+import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
+import org.springframework.cloud.openfeign.EnableFeignClients;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.web.client.RestTemplate;
+
 
 /**
  * The starting point for the Orders Micro Service. This will establish the required Spring configuration and
@@ -18,6 +23,7 @@ import org.springframework.context.annotation.ComponentScan;
 @EnableEurekaClient
 @ComponentScan(basePackages = {"com.tutorial.commons", "com.tutorial.service.order"})
 @EnableAutoConfiguration(exclude = {DataSourceAutoConfiguration.class, JdbcTemplateAutoConfiguration.class})
+@EnableFeignClients(basePackages = "com.tutorial.service.order.interaction")
 public class OrdersMainClass {
 
     /**
@@ -29,4 +35,9 @@ public class OrdersMainClass {
         SpringApplication.run(OrdersMainClass.class);
     }
 
+    @LoadBalanced
+    @Bean
+    public RestTemplate template() {
+        return new RestTemplate();
+    }
 }
