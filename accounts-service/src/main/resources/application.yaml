@@ -30,12 +30,14 @@ eureka:
     service-url:
       defaultZone: http://localhost:8794/e-commerce/eureka
   instance:
-    status-page-url-path: ${server.servlet.context-path}/actuator/info
     health-check-url-path: ${server.servlet.context-path}/actuator/health
-    home-page-url: http://localhost:4880/accounts-service/
+    status-page-url-path: ${server.servlet.context-path}/actuator/info
     prefer-ip-address: true
     metadata-map:
       context-path: ${server.servlet.context-path}
+      service-path: /accounts
+    lease-expiration-duration-in-seconds: 60
+    lease-renewal-interval-in-seconds: 20
 
 
 

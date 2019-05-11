@@ -2,7 +2,6 @@ package com.tutorial.service.products.dao;
 
 import com.tutorial.commons.model.Product;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
@@ -13,53 +12,48 @@ public interface ProductsDao {
 
     /**
      * Method to retrieve all products from the underlying database
+     *
+     * @return list of all products present in the db.
      */
-
-    List<Product> getAllProducts() throws IOException;
+    List<Product> getAllProducts();
 
     /**
      * Method to retrieve product by ID from the underlying database
-     * @param productId
-     * @return
-     * @throws IOException
+     *
+     * @param productId id of the product
+     * @return product with the given product id, if present in the db, else null
      */
-
-    Product getProductById(String productId) throws IOException;
+    Product getProductById(String productId);
 
     /**
      * Method to retrieve product by category from the underlying database
+     *
      * @param category
      * @return
-     * @throws IOException
      */
-
-    List<Product> getProductsByCategory(String category) throws IOException;
+    List<Product> getProductsByCategory(String category);
 
     /**
      * Method to add new product in the underlying database
-     * @param product
-     * @return
-     * @throws IOException
+     *
+     * @param product product to be added in the database
+     * @return true/false depending on whether the product was successfully added or not.
      */
-
-    boolean addNewProduct(Product product) throws IOException;
-
-    /**
-     * Method to add multiple products in the underlying database
-     * @param products
-     * @return
-     * @throws IOException
-     */
-
-    boolean addMultipleProduct(List<Product> products) throws IOException;
+    boolean addNewProduct(Product product);
 
     /**
      * Method to remove the product from the underlying database
-     * @param product
-     * @return
-     * @throws IOException
+     *
+     * @param productId id of the product to be removed from the database.
+     * @return true/false depending on whether thr product removal was successful or not.
      */
-    boolean removeProduct(Product product) throws IOException;
+    boolean removeProduct(String productId);
 
-    List<Product> getProductById(Set<String> productIds);
+    /**
+     * Retrieves multiple products from the database.
+     *
+     * @param productIds ids of the products to be retrieved from the database.
+     * @return list of products with the given ids.
+     */
+    List<Product> getProductsByIdSet(Set<String> productIds);
 }

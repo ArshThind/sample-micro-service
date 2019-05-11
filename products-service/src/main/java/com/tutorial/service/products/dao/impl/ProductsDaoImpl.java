@@ -5,16 +5,16 @@ import com.tutorial.commons.model.Product;
 import com.tutorial.commons.utils.QueryProvider;
 import com.tutorial.service.products.dao.ProductsDao;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.stereotype.Repository;
 
-import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
 import static com.tutorial.service.products.configuration.Constants.*;
 
+@Repository
 public class ProductsDaoImpl implements ProductsDao {
 
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
@@ -22,20 +22,17 @@ public class ProductsDaoImpl implements ProductsDao {
     private QueryProvider queryProvider;
 
     /**
-     * @param jdbcTemplate
-     * @param queryProvider
+     * Constructor for wiring in {@link NamedParameterJdbcTemplate} and {@link QueryProvider}
+     *
+     * @param jdbcTemplate  Spring jdbcTemplate to be wired in for jdbc operations.
+     * @param queryProvider QueryProvider to be used for loading queries.
      */
-
     @Autowired
     public ProductsDaoImpl(NamedParameterJdbcTemplate jdbcTemplate, QueryProvider queryProvider) {
         this.namedParameterJdbcTemplate = jdbcTemplate;
         this.queryProvider = queryProvider;
     }
 
-    /**
-     * @return
-     * @throws IOException
-     */
     @Override
     @DaoProfiler(queryName = "get-all-products")
     public List<Product> getAllProducts() {
@@ -49,6 +46,7 @@ public class ProductsDaoImpl implements ProductsDao {
     }
 
     @Override
+    @DaoProfiler(queryName = "get-products-by-category")
     public List<Product> getProductsByCategory(String category) {
         String query = queryProvider.getTemplateQuery(QueryProvider.GET_PRODUCTS_BY_CATEGORY);
         Map<String, String> params = new HashMap<>();
@@ -60,6 +58,8 @@ public class ProductsDaoImpl implements ProductsDao {
         return products;
     }
 
+    @Override
+    @DaoProfiler(queryName = "get-product-by-product-id")
     public Product getProductById(String productId) {
         String query = queryProvider.getTemplateQuery(QueryProvider.GET_PRODUCT_BY_ID);
         Map<String, String> params = new HashMap<>();
@@ -74,7 +74,8 @@ public class ProductsDaoImpl implements ProductsDao {
     }
 
     @Override
-    public boolean addNewProduct(Product product) throws IOException {
+    @DaoProfiler(queryName = "add-new-product")
+    public boolean addNewProduct(Product product) {
         String query = queryProvider.getTemplateQuery(QueryProvider.ADD_NEW_PRODUCT);
         Map<String, String> params = new HashMap<>();
         params.put(PRODUCT_NAME, product.getName());
@@ -86,32 +87,24 @@ public class ProductsDaoImpl implements ProductsDao {
         return namedParameterJdbcTemplate.update(query, params) > 0;
     }
 
-    @Override
-    public boolean addMultipleProduct(List<Product> products) throws IOException {
-        return false;
-    }
 
     @Override
-    public boolean removeProduct(Product product) throws IOException {
+    @DaoProfiler(queryName = "remove-product")
+    public boolean removeProduct(String productId) {
         String query = queryProvider.getTemplateQuery(QueryProvider.REMOVE_PRODUCT);
         Map<String, String> params = new HashMap<>();
-        params.put(PRODUCT_ID, Long.toString(product.getProductId()));
-
+        params.put(PRODUCT_ID, productId);
         return namedParameterJdbcTemplate.update(query, params) > 0;
 
     }
 
     @Override
-    public List<Product> getProductById(Set<String> productIds) {
+    @DaoProfiler(queryName = "get-products-by-product-id-set")
+    public List<Product> getProductsByIdSet(Set<String> productIds) {
         String query = queryProvider.getTemplateQuery(QueryProvider.GET_PRODUCTS_BY_ID_SET);
         Map<String, Set<String>> params = new HashMap<>(1);
         params.put(PRODUCT_ID, productIds);
-        return namedParameterJdbcTemplate.query(query, params, new RowMapper<Product>() {
-            @Override
-            public Product mapRow(ResultSet rs, int rowNum) throws SQLException {
-                return mapProduct(rs);
-            }
-        });
+        return namedParameterJdbcTemplate.query(query, params, (rs, rowNum) -> mapProduct(rs));
     }
 
 

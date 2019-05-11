@@ -55,7 +55,7 @@ public class QueryProvider {
     public static final String GET_PRODUCTS_BY_CATEGORY = "queries/products/get-products-by-category.sql";
     public static final String ADD_NEW_PRODUCT = "queries/products/add-new-product.sql";
     public static final String REMOVE_PRODUCT = "queries/products/remove-product.sql";
-
+    public static final String GET_PRODUCTS_BY_ID_SET = "queries/products/get-products-by-id-set.sql";
 
     private static final Map<String, String> queries = new HashMap<>();
 
@@ -90,6 +90,16 @@ public class QueryProvider {
         queries.put(GET_ORDER_COUNT, constructQuery(GET_ORDER_COUNT));
         queries.put(CANCEL_ORDER, constructQuery(CANCEL_ORDER));
         queries.put(ADD_STATUS_ROW, constructQuery(ADD_STATUS_ROW));
+
+        //=================================================================================
+        //~ LOAD PRODUCT QUERIES
+        queries.put(GET_ALL_PRODUCTS, constructQuery(GET_ALL_PRODUCTS));
+        queries.put(GET_PRODUCT_BY_ID, constructQuery(GET_PRODUCT_BY_ID));
+        queries.put(GET_PRODUCTS_BY_CATEGORY, constructQuery(GET_PRODUCTS_BY_CATEGORY));
+        queries.put(ADD_NEW_PRODUCT, constructQuery(ADD_NEW_PRODUCT));
+        queries.put(REMOVE_PRODUCT,constructQuery(REMOVE_PRODUCT));
+        queries.put(GET_PRODUCTS_BY_ID_SET,constructQuery(GET_PRODUCTS_BY_ID_SET));
+
         log.warn("Queries loaded successfully.");
     }
 
@@ -112,7 +122,7 @@ public class QueryProvider {
      *
      * @param query Query having temporary placeholders as table names.
      * @return Updated query with updated table names read from the application.yaml
-     * @throws IOException
+     * @throws IOException if an I/O error occurs while loading the query
      */
     private String constructQuery(String query) throws IOException {
         return tableNames.replaceTableNames(IOUtils.toString(new ClassPathResource(query).getURL()));

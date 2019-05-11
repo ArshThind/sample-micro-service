@@ -18,21 +18,6 @@ import java.sql.SQLException;
 public class User {
 
     /**
-     * Static util method to create a dummy user. Useful for mocking during development.
-     *
-     * @return Dummy user
-     */
-    public static User createDummyUser() {
-        User user = new User();
-        user.id = -1;
-        user.name = "John Doe";
-        user.email = "johnDoe@test.com";
-        user.phone = 9999999999l;
-        user.userType = UserType.CUSTOMER;
-        return user;
-    }
-
-    /**
      * Parameterized constructor that maps the data from a @{@link ResultSet}
      * to a @{@link User} object.
      *

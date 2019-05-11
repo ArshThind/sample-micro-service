@@ -13,20 +13,6 @@ public class Address {
     private static final String COUNTRY = "India";
 
     /**
-     * Util method to create a dummy address. Useful for mocking during testing.
-     *
-     * @return Dummy address
-     */
-    public static final Address createDummyAddress() {
-        Address address = new Address();
-        address.addressLine = "1, Test Lane";
-        address.city = "Test";
-        address.state = "Test";
-        address.pinCode = 123456;
-        return address;
-    }
-
-    /**
      * Main address line for the address.
      */
     private String addressLine;

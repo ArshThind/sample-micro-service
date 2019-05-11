@@ -7,6 +7,7 @@ eureka:
   server:
     enable-self-preservation: true
     number-of-replication-retries: 0
+    renewal-percent-threshold: 0.50
   dashboard:
     enabled: true
     path: /registry

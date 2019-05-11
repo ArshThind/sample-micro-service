@@ -38,7 +38,7 @@ public class OrdersController {
     @Autowired
     public OrdersController(OrdersService ordersService, OrdersValidator validator) {
         Assert.notNull(ordersService, "Order Service should not be null");
-        Assert.notNull(validator, "Orders InputEntityValidator should not be null");
+        Assert.notNull(validator, "Orders Validator should not be null");
         this.ordersService = ordersService;
         this.validator = validator;
     }
@@ -139,7 +139,7 @@ public class OrdersController {
      * REST endpoint to add product to an existing order.
      *
      * @param request object encapsulating the request params.
-     * @return Http Status 200 if successful else
+     * @return Http Status 200 if successful else returns Http Status 417
      */
     @PutMapping(path = "/product", consumes = MediaType.APPLICATION_JSON_VALUE)
     public Response addProduct(@RequestBody AddProductRequest request) {
@@ -147,7 +147,7 @@ public class OrdersController {
             if (ordersService.addProduct(request)) {
                 return Response.status(Response.Status.OK).build();
             }
-            return Response.notModified().build();
+            return Response.status(Response.Status.EXPECTATION_FAILED).build();
         } catch (WebApplicationException e) {
             throw e;
         } catch (Exception e) {
@@ -160,7 +160,7 @@ public class OrdersController {
      * REST endpoint to create a new order.
      *
      * @param order order to be created.
-     * @return Http Status 200 if successful else
+     * @return Http Status 200 if successful else returns Http Status 417
      */
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public Response createNewOrder(@RequestBody AddOrderRequest order) {
@@ -169,7 +169,7 @@ public class OrdersController {
             if (ordersService.createOrder(order)) {
                 return Response.ok().build();
             }
-            return Response.notModified().build();
+            return Response.status(Response.Status.EXPECTATION_FAILED).build();
         } catch (BadInputException e) {
             throw e;
         } catch (WebApplicationException e) {
@@ -184,7 +184,7 @@ public class OrdersController {
      * REST end point to cancel an existing order.
      *
      * @param orderId id of the order to be cancelled
-     * @return Http Status 200 if successful else
+     * @return Http Status 200 if successful else returns Http Status 417
      */
     @PostMapping(path = "/{orderId}")
     public Response cancelOrder(@PathVariable("orderId") String orderId) {
@@ -193,7 +193,7 @@ public class OrdersController {
             if (ordersService.cancelOrder(orderId)) {
                 return Response.accepted().build();
             }
-            return Response.notModified().build();
+            return Response.status(Response.Status.EXPECTATION_FAILED).build();
         } catch (BadInputException e) {
             throw e;
         } catch (WebApplicationException e) {

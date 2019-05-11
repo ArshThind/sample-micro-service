@@ -31,6 +31,9 @@ eureka:
   instance:
     metadata-map:
       context-path: ${server.servlet.context-path}
+      service-path: /orders
     prefer-ip-address: true
     health-check-url-path: ${server.servlet.context-path}/actuator/health
-    status-page-url-path: ${server.servlet.context-path}/actuator/status
+    status-page-url-path: ${server.servlet.context-path}/actuator/info
+    lease-expiration-duration-in-seconds: 60
+    lease-renewal-interval-in-seconds: 20

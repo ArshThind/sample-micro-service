@@ -43,6 +43,7 @@ subprojects {
         compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.7'
         // https://mvnrepository.com/artifact/commons-io/commons-io
         compile group: 'commons-io', name: 'commons-io', version: '2.4'
+        compile group: 'commons-collections', name: 'commons-collections', version: '3.2.2'
         // https://mvnrepository.com/artifact/mysql/mysql-connector-java
         compile group: 'mysql', name: 'mysql-connector-java', version: '8.0.15'
         // https://mvnrepository.com/artifact/org.glassfish.jersey.core/jersey-client

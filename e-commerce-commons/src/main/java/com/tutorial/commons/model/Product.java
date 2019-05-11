@@ -10,23 +10,6 @@ import lombok.Setter;
 @Setter
 public class Product {
 
-
-    /**
-     * Util method to create a dummy product. Useful for mocking while developing.
-     *
-     * @return dummy product
-     */
-    public static final Product createDummyProduct() {
-        Product product = new Product();
-        product.productId = -1;
-        product.isAvailable = true;
-        product.category = "test";
-        product.availableQuantity = 999;
-        product.name = "test-product";
-        product.price = 999;
-        return product;
-    }
-
     /**
      * product ID
      */
@@ -62,4 +45,7 @@ public class Product {
      */
     private boolean isAvailable;
 
+    public boolean isAvailable() {
+        return this.availableQuantity > 0;
+    }
 }
