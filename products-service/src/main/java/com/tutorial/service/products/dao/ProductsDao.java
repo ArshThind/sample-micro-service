@@ -4,6 +4,7 @@ import com.tutorial.commons.model.Product;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Base interface to implement @{@link Product} operations on the underlying database.
@@ -23,7 +24,7 @@ public interface ProductsDao {
      * @throws IOException
      */
 
-    Product getProductId(long productId) throws IOException;
+    Product getProductById(String productId) throws IOException;
 
     /**
      * Method to retrieve product by category from the underlying database
@@ -60,4 +61,5 @@ public interface ProductsDao {
      */
     boolean removeProduct(Product product) throws IOException;
 
+    List<Product> getProductById(Set<String> productIds);
 }

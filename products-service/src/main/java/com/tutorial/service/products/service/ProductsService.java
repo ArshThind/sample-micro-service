@@ -9,13 +9,13 @@ public interface ProductsService {
 
     List<Product> getAllProducts() throws IOException;
 
-    Product getProductById(long productId) throws IOException;
+    Product getProductById(String productId) throws IOException;
 
-    Product getProductByCategory(String category) throws IOException;
+    List<Product> getProductsByCategory(String category) throws IOException;
 
     boolean addNewProduct(Product product) throws IOException;
 
     boolean removeProduct(Product product) throws IOException;
 
-
+    List<Product> getProductsByIds(String productIds) throws IOException;
 }

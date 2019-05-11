@@ -5,15 +5,13 @@ import com.tutorial.commons.model.Product;
 import com.tutorial.commons.utils.QueryProvider;
 import com.tutorial.service.products.dao.ProductsDao;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.tutorial.service.products.configuration.Constants.*;
 
@@ -62,10 +60,10 @@ public class ProductsDaoImpl implements ProductsDao {
         return products;
     }
 
-    public Product getProductById(long productId) {
+    public Product getProductById(String productId) {
         String query = queryProvider.getTemplateQuery(QueryProvider.GET_PRODUCT_BY_ID);
         Map<String, String> params = new HashMap<>();
-        params.put(PRODUCT_ID, Long.toString(productId));
+        params.put(PRODUCT_ID, productId);
         Product product = namedParameterJdbcTemplate.query(query, params, rs -> {
             if (rs.next()) {
                 return mapProduct(rs);
@@ -101,6 +99,19 @@ public class ProductsDaoImpl implements ProductsDao {
 
         return namedParameterJdbcTemplate.update(query, params) > 0;
 
+    }
+
+    @Override
+    public List<Product> getProductById(Set<String> productIds) {
+        String query = queryProvider.getTemplateQuery(QueryProvider.GET_PRODUCTS_BY_ID_SET);
+        Map<String, Set<String>> params = new HashMap<>(1);
+        params.put(PRODUCT_ID, productIds);
+        return namedParameterJdbcTemplate.query(query, params, new RowMapper<Product>() {
+            @Override
+            public Product mapRow(ResultSet rs, int rowNum) throws SQLException {
+                return mapProduct(rs);
+            }
+        });
     }
 
 
