@@ -1,7 +1,12 @@
-create table if not exists orders(
-order_id int primary key auto_increment,
-user_id int references users,
-product_id int references products,
-product_qty int not null,
-constraint unq_order unique(order_id,user_id,product_id)
-);
+CREATE TABLE `orders` (
+   `order_id` int(11) NOT NULL AUTO_INCREMENT,
+   `user_id` int(11) DEFAULT NULL,
+   `product_id` int(11) DEFAULT NULL,
+   `product_qty` int(11) NOT NULL,
+   PRIMARY KEY (`order_id`),
+   UNIQUE KEY `unq_order` (`order_id`,`user_id`),
+   KEY `fk_user` (`user_id`),
+   KEY `fk_product` (`product_id`),
+   CONSTRAINT `fk_product` FOREIGN KEY (`product_id`) REFERENCES `products` (`product_id`),
+   CONSTRAINT `fk_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
+ )

@@ -7,7 +7,7 @@ import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 
 /**
- * The core class for the reverse proxy. This will setup a reverse zuul proxy and
+ * The starting class for the reverse proxy. This will setup a reverse zuul proxy and
  * will route the requests to micro-services registered with eureka server.
  */
 @EnableEurekaClient

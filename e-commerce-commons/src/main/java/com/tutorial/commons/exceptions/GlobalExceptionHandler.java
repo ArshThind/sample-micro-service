@@ -48,6 +48,11 @@ public class GlobalExceptionHandler {
         }
     }
 
+    /**
+     * Catch all the un-caught exceptions.
+     *
+     * @return A generic exception response with HTTP status 500.
+     */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ExceptionResponse> handleUncaughtExceptions() {
         ExceptionResponse response = ExceptionResponse.buildInternalErrorResponse("Error! Service Unavailable.");

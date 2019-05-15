@@ -17,6 +17,9 @@ spring:
     exclude: org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
 
 zuul:
+  RibbonRoutingFilter:
+    route:
+      disable: true
   prefix: /rest/api
   routes:
     accounts:
@@ -28,6 +31,7 @@ zuul:
     products:
       path: /products/**
       serviceId: products-service
+  strip-prefix: false
 
 management:
   endpoint:
@@ -36,4 +40,5 @@ management:
       exposure:
         include: '*'
 
-
+error:
+  path: /error
