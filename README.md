@@ -15,10 +15,11 @@ All the dependencies have been compiled using gradle and you need to have a mini
 
 1. install Java.
 2. Open the project in your favorite IDE.
-3. Run the gradle build.
-4. Install the MySql Server.
-5. Set up the db using the scripts provided in the project.
-6. That's it.
+3. Set up Lombok annotation processing for your IDE.
+4. Run the gradle build.
+5. Install the MySql Server.
+6. Set up the db using the scripts provided in the project.
+7. That's it.
 
 ## Setting Up and Running
 
