@@ -8,12 +8,8 @@ All the dependencies have been compiled using gradle and you need to have a mini
 
 ### Prerequisites
 
-JDK 8 or higher.
-MySql
-
-```
-Give examples
-```
+1. JDK 8 or higher.
+2. MySql
 
 ### Installing
 
@@ -32,6 +28,7 @@ Assuming the installation part is done, do the following:
 3. Run the AccountsMainClass.
 4. Run the ProductsMainClass.
 5. Run the OrdersMainClass.
+6. Test the apis either through the browser or any REST api testing tool. I used Postman.
 
 ## Acknowledgments
 
