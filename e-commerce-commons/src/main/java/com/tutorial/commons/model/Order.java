@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.util.Map;
+import java.util.List;
 
 /**
  * Simple POJO representing a Order.
@@ -26,9 +26,9 @@ public class Order {
     private User user;
 
     /**
-     * HashMap mapping products to their quantities.
+     * Products in the order
      */
-    private Map<Product, Integer> products;
+    List<Product> products;
 
     /**
      * Delivery address of the order.

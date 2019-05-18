@@ -90,6 +90,7 @@ public class QueryProvider {
         queries.put(GET_ORDER_COUNT, constructQuery(GET_ORDER_COUNT));
         queries.put(CANCEL_ORDER, constructQuery(CANCEL_ORDER));
         queries.put(ADD_STATUS_ROW, constructQuery(ADD_STATUS_ROW));
+        queries.put(ADD_ADDRESS_ROW, constructQuery(ADD_ADDRESS_ROW));
 
         //=================================================================================
         //~ LOAD PRODUCT QUERIES
@@ -97,8 +98,8 @@ public class QueryProvider {
         queries.put(GET_PRODUCT_BY_ID, constructQuery(GET_PRODUCT_BY_ID));
         queries.put(GET_PRODUCTS_BY_CATEGORY, constructQuery(GET_PRODUCTS_BY_CATEGORY));
         queries.put(ADD_NEW_PRODUCT, constructQuery(ADD_NEW_PRODUCT));
-        queries.put(REMOVE_PRODUCT,constructQuery(REMOVE_PRODUCT));
-        queries.put(GET_PRODUCTS_BY_ID_SET,constructQuery(GET_PRODUCTS_BY_ID_SET));
+        queries.put(REMOVE_PRODUCT, constructQuery(REMOVE_PRODUCT));
+        queries.put(GET_PRODUCTS_BY_ID_SET, constructQuery(GET_PRODUCTS_BY_ID_SET));
 
         log.warn("Queries loaded successfully.");
     }
@@ -114,6 +115,7 @@ public class QueryProvider {
         if (queries.containsKey(query)) {
             return queries.get(query);
         }
+        log.error("Error while loading the query: {}", query);
         throw new IllegalArgumentException("No such query exists.");
     }
 

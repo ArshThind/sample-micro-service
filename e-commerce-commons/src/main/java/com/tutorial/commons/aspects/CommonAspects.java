@@ -8,6 +8,9 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.stereotype.Component;
 
+/**
+ * Represents a logging aspect that is used o log method runtime.
+ */
 @Aspect
 @Slf4j
 @Component

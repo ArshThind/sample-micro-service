@@ -1,5 +1,6 @@
 package com.tutorial.commons.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +18,9 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
+
+import static com.fasterxml.jackson.databind.DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY;
+import static com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES;
 
 /**
  * Spring configuration class which defines all the beans which are common to all the services.
@@ -90,5 +94,14 @@ public class CommonSpringConfig {
     @Primary
     public PlatformTransactionManager transactionManager(DataSource dataSource) throws SQLException {
         return new DataSourceTransactionManager(dataSource);
+    }
+
+    @Bean
+    @Primary
+    public ObjectMapper objectMapper() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(FAIL_ON_UNKNOWN_PROPERTIES, false);
+        objectMapper.configure(ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+        return objectMapper;
     }
 }

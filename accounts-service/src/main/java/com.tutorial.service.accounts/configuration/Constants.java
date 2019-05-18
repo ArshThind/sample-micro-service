@@ -11,10 +11,7 @@ public class Constants {
     private Constants() {
     }
 
-    public static final String ID = "id";
     public static final String USER_NAME = "username";
-    public static final String PERMANENT_ADDRESS = "permanentAddress";
-    public static final String DELIVERY_ADDRESS = "deliveryAddress";
     public static final String EMAIL = "email";
     public static final String PHONE = "phone";
     public static final String USER_ID = "userId";

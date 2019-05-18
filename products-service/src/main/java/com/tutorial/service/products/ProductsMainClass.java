@@ -16,7 +16,7 @@ import org.springframework.context.annotation.ComponentScan;
 @SpringBootApplication
 @EnableEurekaClient
 @Slf4j
-@ComponentScan(basePackages = {"com.tutorial.commons","com.tutorial.service.products"})
+@ComponentScan(basePackages = {"com.tutorial.commons", "com.tutorial.service.products"})
 public class ProductsMainClass {
 
     public static void main(String[] args) {

@@ -27,7 +27,7 @@ public class OrderEntity {
     /**
      * HashMap which maps the product ids to their corresponding quantities for an order.
      */
-    private Map<Integer, Integer> productQtyMap;
+    private Map<String, Integer> productQtyMap;
 
     /**
      * Delivery address for an order.

@@ -9,13 +9,13 @@ import com.tutorial.service.order.interaction.RestInteraction;
 import com.tutorial.service.order.request.AddOrderRequest;
 import com.tutorial.service.order.request.AddProductRequest;
 import com.tutorial.service.order.service.OrdersService;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 public class OrderServiceImpl implements OrdersService {
@@ -77,16 +77,24 @@ public class OrderServiceImpl implements OrdersService {
      */
     private List<Order> constructOrder(List<OrderEntity> orderEntityList) {
         List<Order> orders = new ArrayList<>(orderEntityList.size());
-        Map<Integer, User> userMap = interaction.getUserDetails(null);
-        Map<Integer, Product> productMap = interaction.getProductDetails(null);
-        orderEntityList.stream().forEach(s -> {
+        if (CollectionUtils.isEmpty(orderEntityList)) {
+            return orders;
+        }
+        Map<Integer, User> userMap = interaction.getUserDetails(extractUserIds.apply(orderEntityList));
+        Map<Integer, Product> productMap = interaction.getProductDetails(extractProductIds(orderEntityList));
+
+        orderEntityList.forEach(s -> {
             Order order = new Order();
+            order.setId(s.getOrderId());
             order.setUser(userMap.get(s.getUserId()));
-            Map<Product, Integer> prodQtyMap = new HashMap<>();
-            for (Map.Entry<Integer, Integer> entry : s.getProductQtyMap().entrySet()) {
-                prodQtyMap.put(productMap.get(entry.getKey()), entry.getValue());
+            List<Product> products = new ArrayList<>();
+            for (Map.Entry<String, Integer> entry : s.getProductQtyMap().entrySet()) {
+                Product product = productMap.get(Integer.parseInt(entry.getKey()));
+                for (int i = 0; i < entry.getValue(); i++) {
+                    products.add(product);
+                }
             }
-            order.setProducts(prodQtyMap);
+            order.setProducts(products);
             order.setAddress(s.getAddress());
             calculateCost(order);
             orders.add(order);
@@ -95,7 +103,7 @@ public class OrderServiceImpl implements OrdersService {
     }
 
     /**
-     * Utility method to create an @{@link Order} from an {@link OrderEntity}
+     * Utility method to create an {@link Order} from an {@link OrderEntity}
      *
      * @param entity instance of an {@link OrderEntity}
      * @return an instance of {@link Order}
@@ -104,15 +112,21 @@ public class OrderServiceImpl implements OrdersService {
         if (entity == null) {
             return null;
         }
-        Map<Integer, User> userMap = interaction.getUserDetails(null);
-        Map<Integer, Product> productMap = interaction.getProductDetails(null);
+
+        Map<Integer, User> userMap = interaction.getUserDetails(extractUserIds.apply(Collections.singletonList(entity)));
+        Map<Integer, Product> productMap = interaction.getProductDetails(extractProductIds(Collections.singletonList(entity)));
         Order order = new Order();
+        order.setId(entity.getOrderId());
         order.setUser(userMap.get(entity.getUserId()));
-        Map<Product, Integer> prodQtyMap = new HashMap<>();
-        for (Map.Entry<Integer, Integer> entry : entity.getProductQtyMap().entrySet()) {
-            prodQtyMap.put(productMap.get(entry.getKey()), entry.getValue());
+        List<Product> products = new ArrayList<>();
+        for (Map.Entry<String, Integer> entry : entity.getProductQtyMap().entrySet()) {
+            Product product = productMap.get(Integer.parseInt(entry.getKey()));
+            for (int i = 0; i < entry.getValue(); i++) {
+                products.add(product);
+            }
         }
-        order.setProducts(prodQtyMap);
+
+        order.setProducts(products);
         order.setAddress(entity.getAddress());
         calculateCost(order);
         return order;
@@ -125,9 +139,30 @@ public class OrderServiceImpl implements OrdersService {
      */
     private void calculateCost(Order order) {
         double cost = 0.0;
-        for (Map.Entry<Product, Integer> entry : order.getProducts().entrySet()) {
-            cost += entry.getKey().getPrice() * entry.getValue();
+        for (Product product : order.getProducts()) {
+            cost += product.getPrice();
         }
         order.setCost(cost);
+    }
+
+    /**
+     * Extracts userIds from a list of {@link OrderEntity}
+     */
+    private Function<List<OrderEntity>, Set<Integer>> extractUserIds = o -> o.stream().map(OrderEntity::getUserId)
+            .collect(Collectors.toSet());
+
+    /**
+     * Extracts productIds from a list of {@link OrderEntity}
+     */
+    private Set<Integer> extractProductIds(List<OrderEntity> orderEntities) {
+        Set<Integer> productIds = new HashSet<>();
+        for (OrderEntity entity : orderEntities) {
+            Set<String> ids = entity.getProductQtyMap().keySet();
+            ids.forEach(s -> {
+                Integer extractedId = Integer.parseInt(s);
+                productIds.add(extractedId);
+            });
+        }
+        return productIds;
     }
 }

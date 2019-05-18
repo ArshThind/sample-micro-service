@@ -26,6 +26,6 @@ public class AddOrderRequest {
     /**
      * HashMap which maps productIds to their corresponding quantities
      */
-    private Map<Integer, Integer> productQty;
+    private Map<String, Integer> productQty;
 
 }

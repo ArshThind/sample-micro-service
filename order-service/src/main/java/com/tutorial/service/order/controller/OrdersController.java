@@ -56,6 +56,7 @@ public class OrdersController {
         try {
             return ordersService.getAllOrders();
         } catch (Exception e) {
+            log.error("Error occurred while fetching the orders: {}", e);
             throw new WebApplicationException("Error! Service Unavailable.", Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
@@ -76,6 +77,7 @@ public class OrdersController {
         } catch (BadInputException e) {
             throw e;
         } catch (WebApplicationException e) {
+            log.error("Error occurred while fetching the orders: {}", e);
             throw e;
         } catch (Exception e) {
             log.error("Error occurred while getting orders, Error: {}", e);
@@ -99,6 +101,7 @@ public class OrdersController {
         } catch (BadInputException e) {
             throw e;
         } catch (WebApplicationException e) {
+            log.error("Error occurred while fetching the orders: {}", e);
             throw e;
         } catch (Exception e) {
             log.error("Error occurred while getting orders, Error: {}", e);
@@ -124,6 +127,7 @@ public class OrdersController {
         } catch (BadInputException e) {
             throw e;
         } catch (WebApplicationException e) {
+            log.error("Error occurred while fetching the orders: {}", e);
             throw e;
         } catch (Exception e) {
             log.error("Error occurred while getting orders, Error: {}", e);
@@ -139,7 +143,7 @@ public class OrdersController {
      * REST endpoint to add product to an existing order.
      *
      * @param request object encapsulating the request params.
-     * @return Http Status 200 if successful else returns Http Status 417
+     * @return Http Status 200 if successful else returns Http Status 503
      */
     @PutMapping(path = "/product", consumes = MediaType.APPLICATION_JSON_VALUE)
     public Response addProduct(@RequestBody AddProductRequest request) {
@@ -147,8 +151,9 @@ public class OrdersController {
             if (ordersService.addProduct(request)) {
                 return Response.status(Response.Status.OK).build();
             }
-            return Response.status(Response.Status.EXPECTATION_FAILED).build();
+            return Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(request).build();
         } catch (WebApplicationException e) {
+            log.error("Error occurred while fetching the orders: {}", e);
             throw e;
         } catch (Exception e) {
             log.error("Error occurred while adding product, Error: {}", e);
@@ -160,7 +165,7 @@ public class OrdersController {
      * REST endpoint to create a new order.
      *
      * @param order order to be created.
-     * @return Http Status 200 if successful else returns Http Status 417
+     * @return Http Status 200 if successful else returns Http Status 503
      */
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public Response createNewOrder(@RequestBody AddOrderRequest order) {
@@ -169,10 +174,11 @@ public class OrdersController {
             if (ordersService.createOrder(order)) {
                 return Response.ok().build();
             }
-            return Response.status(Response.Status.EXPECTATION_FAILED).build();
+            return Response.status(Response.Status.SERVICE_UNAVAILABLE).build();
         } catch (BadInputException e) {
             throw e;
         } catch (WebApplicationException e) {
+            log.error("Error occurred while fetching the orders: {}", e);
             throw e;
         } catch (Exception e) {
             log.error("Error occurred while creating a new order, Error: {}", e);
@@ -184,19 +190,20 @@ public class OrdersController {
      * REST end point to cancel an existing order.
      *
      * @param orderId id of the order to be cancelled
-     * @return Http Status 200 if successful else returns Http Status 417
+     * @return Http Status 200 if successful else returns Http Status 503
      */
-    @PostMapping(path = "/{orderId}")
+    @DeleteMapping(path = "/{orderId}")
     public Response cancelOrder(@PathVariable("orderId") String orderId) {
         try {
             validator.validateOrderId(orderId);
             if (ordersService.cancelOrder(orderId)) {
                 return Response.accepted().build();
             }
-            return Response.status(Response.Status.EXPECTATION_FAILED).build();
+            return Response.status(Response.Status.SERVICE_UNAVAILABLE).build();
         } catch (BadInputException e) {
             throw e;
         } catch (WebApplicationException e) {
+            log.error("Error occurred while fetching the orders: {}", e);
             throw e;
         } catch (Exception e) {
             log.error("Error occurred while cancelling the order, Error: {}", e);
@@ -205,9 +212,7 @@ public class OrdersController {
     }
 
     /**
-     * Utility method to check if the a list is empty.
-     *
-     * @param orders
+     * Utility method to check if the list is empty.
      */
     private void checkEmpty(List<Order> orders) {
         if (CollectionUtils.isEmpty(orders)) {

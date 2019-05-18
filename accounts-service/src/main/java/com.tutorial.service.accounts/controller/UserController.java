@@ -105,7 +105,7 @@ public class UserController {
         try {
             validator.validateInputUser(user);
             if (userService.createUser(user) > 0) {
-                return Response.status(Response.Status.CREATED).build();
+                return Response.status(Response.Status.OK).build();
             }
         } catch (BadInputException e) {
             throw e;
@@ -113,7 +113,7 @@ public class UserController {
             log.error("Error occurred while execution: {}", e);
             throw new WebApplicationException("Error! Service Unavailable.", Response.Status.INTERNAL_SERVER_ERROR);
         }
-        return Response.status(Response.Status.ACCEPTED).build();
+        return Response.status(Response.Status.SERVICE_UNAVAILABLE).build();
     }
 
     /**
@@ -138,7 +138,7 @@ public class UserController {
             log.error("Error occurred while execution: {}", e);
             throw new WebApplicationException("Error! Service Unavailable.", Response.Status.INTERNAL_SERVER_ERROR);
         }
-        return Response.status(Response.Status.ACCEPTED).build();
+        return Response.status(Response.Status.SERVICE_UNAVAILABLE).build();
     }
 
     /**

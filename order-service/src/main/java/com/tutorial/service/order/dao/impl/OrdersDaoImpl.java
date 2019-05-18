@@ -1,10 +1,12 @@
 package com.tutorial.service.order.dao.impl;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.tutorial.commons.annotations.DaoProfiler;
 import com.tutorial.commons.model.Address;
 import com.tutorial.commons.utils.QueryProvider;
 import com.tutorial.service.order.dao.OrdersDao;
 import com.tutorial.service.order.dao.entity.OrderEntity;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -15,15 +17,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static com.tutorial.service.order.util.OrderConstants.*;
 
 /**
- * Base implementation for @{@link OrdersDao}
+ * Base implementation for {@link OrdersDao}
  */
 @Repository
 public class OrdersDaoImpl implements OrdersDao {
@@ -32,19 +33,31 @@ public class OrdersDaoImpl implements OrdersDao {
 
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
-    private ExecutorService executorService = Executors.newFixedThreadPool(10);
+    private ExecutorService executorService;
+
+    private ThreadFactory threadFactory;
 
     @Autowired
     public OrdersDaoImpl(QueryProvider queryProvider, NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
         this.queryProvider = queryProvider;
         this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
+        threadFactory = createThreadFactory();
+        executorService = Executors.newFixedThreadPool(10, threadFactory);
+    }
+
+    private ThreadFactory createThreadFactory() {
+        return new ThreadFactoryBuilder()
+                .setThreadFactory(Executors.defaultThreadFactory())
+                .setNameFormat("Orders-Pool-%d")
+                .build();
     }
 
     @Override
     @DaoProfiler(queryName = "get-all-orders")
     public List<OrderEntity> getAllOrders() {
         String query = queryProvider.getTemplateQuery(QueryProvider.GET_ALL_ORDERS);
-        return namedParameterJdbcTemplate.query(query, (rs, row) -> mapOrder(rs));
+        List<OrderEntity> orders = namedParameterJdbcTemplate.query(query, (rs, row) -> mapOrder(rs));
+        return aggregateOrders.apply(orders);
     }
 
     @Override
@@ -55,11 +68,9 @@ public class OrdersDaoImpl implements OrdersDao {
         Map<String, String> params = new HashMap<>(1);
         params.put(USER_ID_PARAM, userId);
         namedParameterJdbcTemplate.query(query, params, rs -> {
-            while (rs.next()) {
-                orderEntityList.add(mapOrder(rs));
-            }
+            orderEntityList.add(mapOrder(rs));
         });
-        return orderEntityList;
+        return aggregateOrders.apply(orderEntityList);
     }
 
     @Override
@@ -70,11 +81,9 @@ public class OrdersDaoImpl implements OrdersDao {
         Map<String, String> params = new HashMap<>(1);
         params.put(PRODUCT_ID_PARAM, productId);
         namedParameterJdbcTemplate.query(query, params, rs -> {
-            while (rs.next()) {
-                orderEntityList.add(mapOrder(rs));
-            }
+            orderEntityList.add(mapOrder(rs));
         });
-        return orderEntityList;
+        return aggregateOrders.apply(orderEntityList);
     }
 
     @Override
@@ -83,8 +92,11 @@ public class OrdersDaoImpl implements OrdersDao {
         String query = queryProvider.getTemplateQuery(QueryProvider.GET_ORDER_BY_ID);
         Map<String, String> params = new HashMap<>(1);
         params.put(ORDER_ID_PARAM, orderId);
-        OrderEntity entity = namedParameterJdbcTemplate.query(query, params, rs -> rs.next() ? mapOrder(rs) : null);
-        return entity;
+        List<OrderEntity> orders = new ArrayList<>();
+        namedParameterJdbcTemplate.query(query, params, rs -> {
+            orders.add(mapOrder(rs));
+        });
+        return CollectionUtils.isEmpty(orders) ? null : aggregateOrders.apply(orders).get(0);
     }
 
     @Override
@@ -93,21 +105,24 @@ public class OrdersDaoImpl implements OrdersDao {
         String query = queryProvider.getTemplateQuery(QueryProvider.ADD_NEW_ORDER);
         Map<String, String> params[] = new HashMap[order.getProductQtyMap().size()];
         int index = 0;
-        for (Map.Entry<Integer, Integer> entry : order.getProductQtyMap().entrySet()) {
+        for (Map.Entry<String, Integer> entry : order.getProductQtyMap().entrySet()) {
+            params[index] = new HashMap<>();
             params[index].put(USER_ID_PARAM, String.valueOf(order.getUserId()));
-            params[index].put(PRODUCT_ID, String.valueOf(entry.getKey()));
+            params[index].put(PRODUCT_ID_PARAM, entry.getKey());
             params[index].put(PRODUCT_QTY_PARAM, String.valueOf(entry.getValue()));
+            index++;
         }
+        int[] records = namedParameterJdbcTemplate.batchUpdate(query, params);
         createAddressRow(order.getAddress());
         createStatusRow();
-        return namedParameterJdbcTemplate.batchUpdate(query, params).length != 0;
+        return records.length > 0;
     }
 
     @Override
     @DaoProfiler(queryName = "add-product-to-order")
     public boolean addProduct(int productId, int quantity, int orderId, int userId) {
         Future<Boolean> checkOrderResult = executorService.submit(() -> checkOrderExists(String.valueOf(orderId)));
-        String query = queryProvider.getTemplateQuery(queryProvider.getTemplateQuery(QueryProvider.ADD_PRODUCT_TO_ORDER));
+        String query = queryProvider.getTemplateQuery(QueryProvider.ADD_PRODUCT_TO_ORDER);
         Map<String, Integer> params = new HashMap<>(3);
         params.put(PRODUCT_ID_PARAM, productId);
         params.put(PRODUCT_QTY_PARAM, quantity);
@@ -173,8 +188,8 @@ public class OrdersDaoImpl implements OrdersDao {
         OrderEntity entity = new OrderEntity();
         entity.setOrderId(rs.getInt(ORDER_ID));
         entity.setUserId(rs.getInt(USER_ID));
-        Map<Integer, Integer> qtyMap = new HashMap<>(1);
-        qtyMap.put(rs.getInt(PRODUCT_ID), rs.getInt(PRODUCT_QTY));
+        Map<String, Integer> qtyMap = new HashMap<>(1);
+        qtyMap.put(rs.getString(PRODUCT_ID), rs.getInt(PRODUCT_QTY));
         entity.setProductQtyMap(qtyMap);
         Address address = new Address();
         address.setAddressLine(rs.getString(LINE_ONE));
@@ -209,4 +224,17 @@ public class OrdersDaoImpl implements OrdersDao {
         params.put(PIN_CODE_PARAM, String.valueOf(address.getPinCode()));
         namedParameterJdbcTemplate.update(query, params);
     }
+
+    /**
+     * Utility function to aggregate all the products of an order into a single order.
+     */
+    private Function<List<OrderEntity>, List<OrderEntity>> aggregateOrders = o -> new ArrayList<>(o.stream()
+            .collect(
+                    Collectors.toMap
+                            (s -> s.getOrderId(),
+                                    s -> s,
+                                    (s1, s2) -> {
+                                        s1.getProductQtyMap().putAll(s2.getProductQtyMap());
+                                        return s1;
+                                    })).values());
 }

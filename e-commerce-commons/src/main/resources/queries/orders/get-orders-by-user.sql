@@ -1,4 +1,7 @@
-SELECT * FROM [ORDERS] o
+SELECT o2.*,a.* FROM [ORDERS] o1
 JOIN [DEL_ADDRESS] a
-ON o.order_id = a.order_id
-WHERE user_id = :userId
+ON o1.order_id = a.order_id
+JOIN [ORDERS] o2
+ON o1.order_id = o2.order_id
+WHERE o1.user_id = :userId
+AND o2.order_id = o1.order_id

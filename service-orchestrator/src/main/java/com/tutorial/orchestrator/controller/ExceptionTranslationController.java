@@ -50,7 +50,7 @@ public class ExceptionTranslationController extends AbstractErrorController {
             WebApplicationException we = (WebApplicationException) t.getCause();
             throw we;
         }
-        Exception exception = (WebApplicationException) t.getCause();
+        Exception exception = (Exception) t.getCause();
         throw exception;
     }
 }

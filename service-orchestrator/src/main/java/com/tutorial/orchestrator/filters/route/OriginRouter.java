@@ -3,6 +3,8 @@ package com.tutorial.orchestrator.filters.route;
 import com.netflix.client.ClientException;
 import com.netflix.zuul.context.RequestContext;
 import com.tutorial.orchestrator.filters.route.util.ContextPathHelper;
+import com.tutorial.orchestrator.model.CustomResponseWrapper;
+import com.tutorial.orchestrator.model.DuplicateClientResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -11,9 +13,10 @@ import org.springframework.cloud.netflix.ribbon.support.RibbonRequestCustomizer;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandFactory;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonRoutingFilter;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.util.MultiValueMap;
@@ -23,14 +26,15 @@ import org.springframework.web.client.RestTemplate;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map;
 
+import static javax.ws.rs.HttpMethod.*;
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.SERVICE_ID_KEY;
+import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 /**
  * Encapsulates the logic for routing.
@@ -39,7 +43,7 @@ import static org.springframework.cloud.netflix.zuul.filters.support.FilterConst
  * based on the serviceIds registered in the eureka server and also performs the load-balancing using a
  * ribbon load balancer.
  * <p>
- * Since zuul doesn't returns the context-path in the base uri while polling the service registry by default,
+ * Since zuul doesn't return the context-path in the base uri while polling the service registry by default,
  * this class offers a convenient workaround.
  * <p>
  * Working:
@@ -108,9 +112,9 @@ public class OriginRouter extends RibbonRoutingFilter {
 
         String requestUri = getRequestUri(serviceId, contextPath, uri, params);
         ClientHttpResponse response;
+        String payload = setRequestPayload(request);
         try {
-            response = restTemplate.execute(requestUri, HttpMethod.valueOf(method), null, this::createDuplicateResponse
-                    , new Object[0]);
+            response = invokeMicroService(requestUri, method, payload);
         } catch (WebApplicationException e) {
             log.error("Received exception from micro-service: {}, Error: {}, status: {}", serviceId, e, e.getResponse().getStatus());
             throw e;
@@ -122,6 +126,35 @@ public class OriginRouter extends RibbonRoutingFilter {
             throw new WebApplicationException(e.getCause(), Response.Status.INTERNAL_SERVER_ERROR);
         }
         return response;
+    }
+
+    private ClientHttpResponse invokeMicroService(String requestUri, String method, String payload) throws IOException, URISyntaxException {
+        HttpHeaders headers = getHeaders();
+        HttpEntity<String> httpEntity = new HttpEntity<>(payload, headers);
+
+        switch (method.toUpperCase()) {
+            case GET:
+                return restTemplate.execute(requestUri, HttpMethod.valueOf(method), null, this::createDuplicateResponse, new Object[0]);
+            case POST:
+            case PUT:
+            case DELETE:
+                ResponseEntity<CustomResponseWrapper> response = restTemplate.exchange(requestUri, HttpMethod.valueOf(method), httpEntity, CustomResponseWrapper.class);
+                return response.getBody().getResponse();
+            default:
+                throw new WebApplicationException(Response.Status.METHOD_NOT_ALLOWED);
+        }
+    }
+
+    private HttpHeaders getHeaders() {
+        HttpHeaders httpHeaders = new HttpHeaders();
+//        httpHeaders.add(ACCEPT, APPLICATION_JSON_VALUE);
+        httpHeaders.add(CONTENT_TYPE, APPLICATION_JSON_VALUE);
+        return httpHeaders;
+    }
+
+    private String setRequestPayload(HttpServletRequest request) throws IOException {
+        String payload = request.getReader() == null ? null : IOUtils.toString(request.getReader());
+        return payload;
     }
 
     private String getContextPath(String serviceId) {
@@ -152,39 +185,6 @@ public class OriginRouter extends RibbonRoutingFilter {
     }
 
     private ClientHttpResponse createDuplicateResponse(ClientHttpResponse httpResponse) throws IOException {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        IOUtils.copy(httpResponse.getBody(), outputStream);
-        InputStream copy = new ByteArrayInputStream(outputStream.toByteArray());
-        return new ClientHttpResponse() {
-            @Override
-            public HttpStatus getStatusCode() throws IOException {
-                return httpResponse.getStatusCode();
-            }
-
-            @Override
-            public int getRawStatusCode() throws IOException {
-                return httpResponse.getRawStatusCode();
-            }
-
-            @Override
-            public String getStatusText() throws IOException {
-                return httpResponse.getStatusText();
-            }
-
-            @Override
-            public void close() {
-                httpResponse.close();
-            }
-
-            @Override
-            public InputStream getBody() throws IOException {
-                return copy;
-            }
-
-            @Override
-            public HttpHeaders getHeaders() {
-                return httpResponse.getHeaders();
-            }
-        };
+        return new DuplicateClientResponse(httpResponse);
     }
 }

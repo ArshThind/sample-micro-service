@@ -35,7 +35,7 @@ public class OrdersValidator {
     }
 
     public void validateCreateOrderRequest(AddOrderRequest order) {
-        if (!validateAddress.test(order.getAddress())) {
+        if (invalidAddressPredicate.test(order.getAddress())) {
             throw new BadInputException("Please pass a valid address.");
         }
         if (!validateProductMap.test(order.getProductQty())) {
@@ -45,15 +45,15 @@ public class OrdersValidator {
 
     private Predicate<String> checkNonEmptyAndNumeric = s -> StringUtils.isBlank(s) || !StringUtils.isNumeric(s);
 
-    private Predicate<Address> validateAddress = s -> s == null || StringUtils.isBlank(s.getAddressLine()) || StringUtils.isBlank(s.getCity()) ||
+    private Predicate<Address> invalidAddressPredicate = s -> s == null || StringUtils.isBlank(s.getAddressLine()) || StringUtils.isBlank(s.getCity()) ||
             StringUtils.isBlank(s.getState()) || !String.valueOf(s.getPinCode()).matches(PIN_CODE_REGEX);
 
-    private Predicate<Map<Integer, Integer>> validateProductMap = s -> {
+    private Predicate<Map<String, Integer>> validateProductMap = s -> {
         if (s == null) {
             return false;
         }
-        for (Map.Entry<Integer, Integer> entry : s.entrySet()) {
-            if (entry.getKey() < 1 || entry.getValue() < 1) {
+        for (Map.Entry<String, Integer> entry : s.entrySet()) {
+            if (!StringUtils.isNumeric(entry.getKey()) || Integer.parseInt(entry.getKey()) < 1 || entry.getValue() < 1) {
                 return false;
             }
         }

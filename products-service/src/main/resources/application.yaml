@@ -37,5 +37,8 @@ eureka:
     status-page-url-path: ${server.servlet.context-path}/actuator/info
     lease-expiration-duration-in-seconds: 60
     lease-renewal-interval-in-seconds: 20
+logging:
+  level:
+    org.springframework: debug
 
 
